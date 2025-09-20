@@ -1,7 +1,7 @@
 # helm-charts
 Helm Charts for K8s
 
-````bash
+```bash
 helm repo add helm-charts https://pascal0030.github.io/helm-charts/
 ```
 
