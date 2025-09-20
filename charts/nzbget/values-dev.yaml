@@ -1,0 +1,6 @@
+image:
+  repository: linuxserver/nzbget
+  # This sets the pull policy for images.
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "testing"
