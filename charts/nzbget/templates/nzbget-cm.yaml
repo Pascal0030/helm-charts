@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nzbget-config-cm
-data:
-  nzbget.conf: |
-{{ .Values.config.nzbgetconfig | indent 4 }}
