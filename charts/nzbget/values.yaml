@@ -165,7 +165,7 @@ config:
     Server1.Username={{"{{ .username }}"}}
     Server1.Password={{"{{ .password }}"}}
     Server1.JoinGroup=no
-    Server1.Cipher=TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+    Server1.Cipher=
     Server1.Connections=20
     Server1.Retention=6191
     Server1.CertVerification=strict
