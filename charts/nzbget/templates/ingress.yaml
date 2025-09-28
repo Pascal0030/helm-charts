@@ -44,7 +44,7 @@ spec:
               service:
                 name: {{ $fullName }}
                 port:
-                  number: {{ $svcPort }}
+                  name: nzbget-http
               {{- else }}
               serviceName: {{ $fullName }}
               servicePort: {{ $svcPort }}

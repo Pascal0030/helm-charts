@@ -99,7 +99,7 @@ spec:
               value: {{ include "chrt-6456.password" . | quote }}
             {{- end }}
           ports:
-            - name: http
+            - name: nzbget-http
               containerPort: {{ .Values.service.port | default 6789 }}
               protocol: TCP
           {{- if .Values.livenessProbe.enabled }}
