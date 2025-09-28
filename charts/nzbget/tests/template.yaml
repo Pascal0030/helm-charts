@@ -1,0 +1,279 @@
+---
+# Source: nzbget/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-name-nzbget
+  namespace: operators
+  labels:
+    helm.sh/chart: nzbget-0.0.1
+    app.kubernetes.io/name: nzbget
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "25.3.20250926"
+    app.kubernetes.io/managed-by: Helm
+data:
+  nzbget.conf: |
+    
+    MainDir=/config
+    DestDir=/downloads/completed
+    InterDir=/downloads/intermediate
+    NzbDir=${MainDir}/nzb
+    QueueDir=${MainDir}/queue
+    TempDir=${MainDir}/tmp
+    WebDir=${AppDir}/webui
+    ScriptDir=${MainDir}/scripts
+    LockFile=${MainDir}/nzbget.lock
+    LogFile=${MainDir}/nzbget.log
+    ConfigTemplate=${AppDir}/webui/nzbget.conf.template
+    RequiredDir=
+    CertStore=${AppDir}/cacert.pem
+    Server1.Active=yes
+    Server1.Name=eweka
+    Server1.Level=0
+    Server1.Optional=no
+    Server1.Group=0
+    Server1.Host=news.eweka.nl
+    Server1.Encryption=yes
+    Server1.Port=443
+    Server1.Username={{"{{ .username }}"}}
+    Server1.Password={{"{{ .password }}"}}
+    Server1.JoinGroup=no
+    Server1.Cipher=
+    Server1.Connections=20
+    Server1.Retention=6191
+    Server1.CertVerification=strict
+    Server1.IpVersion=auto
+    Server1.Notes=
+    ControlIP=0.0.0.0
+    ControlPort=6789
+    RestrictedUsername=
+    RestrictedPassword=
+    AddUsername=
+    AddPassword=
+    FormAuth=no
+    SecureControl=no
+    SecurePort=6791
+    SecureCert=
+    SecureKey=
+    AuthorizedIP=127.0.0.1
+    CertCheck=yes
+    UpdateCheck=stable
+    DaemonUsername=root
+    UMask=1000
+    Category1.Name=movies
+    Category1.DestDir=/downloads/downloads/movies
+    Category1.Unpack=yes
+    Category1.Extensions=
+    Category1.Aliases=
+    Category2.Name=series
+    Category2.DestDir=/downloads/downloads/series
+    Category3.Name=music
+    Category3.DestDir=/downloads/downloads/music
+    Category4.Name=software
+    Category4.DestDir=/downloads/downloads/software
+    AppendCategoryDir=yes
+    NzbDirInterval=5
+    NzbDirFileAge=60
+    DupeCheck=yes
+    FlushQueue=no
+    ContinuePartial=no
+    PropagationDelay=0
+    ArticleCache=250
+    DirectWrite=yes
+    WriteBuffer=1024
+    FileNaming=auto
+    RenameAfterUnpack=yes
+    RenameIgnoreExt=.zip, .7z, .rar, .par2
+    ReorderFiles=yes
+    PostStrategy=rocket
+    DiskSpace=250
+    NzbCleanupDisk=yes
+    KeepHistory=30
+    FeedHistory=7
+    SkipWrite=no
+    RawArticle=no
+    ArticleRetries=3
+    ArticleInterval=10
+    ArticleTimeout=60
+    ArticleReadChunkSize=4
+    UrlRetries=3
+    UrlInterval=10
+    UrlTimeout=60
+    RemoteTimeout=90
+    DownloadRate=0
+    UrlConnections=25
+    UrlForce=yes
+    MonthlyQuota=0
+    QuotaStartDay=1
+    DailyQuota=0
+    WriteLog=append
+    RotateLog=3
+    ErrorTarget=both
+    WarningTarget=both
+    InfoTarget=screen
+    DetailTarget=log
+    DebugTarget=log
+    LogBuffer=1000
+    NzbLog=yes
+    CrashTrace=yes
+    CrashDump=no
+    TimeCorrection=0
+    OutputMode=curses
+    CursesNzbName=yes
+    CursesGroup=no
+    CursesTime=no
+    UpdateInterval=200
+    CrcCheck=yes
+    ParCheck=auto
+    ParRepair=yes
+    ParScan=extended
+    ParQuick=yes
+    ParBuffer=16
+    ParThreads=0
+    ParIgnoreExt=.sfv, .nzb, .nfo
+    ParRename=yes
+    RarRename=yes
+    DirectRename=no
+    HealthCheck=park
+    ParTimeLimit=0
+    ParPauseQueue=no
+    Unpack=yes
+    DirectUnpack=no
+    UnpackPauseQueue=no
+    UnpackCleanupDisk=yes
+    UnrarCmd=unrar
+    SevenZipCmd=7z
+    ExtCleanupDisk=.par2, .sfv
+    UnpackIgnoreExt=.cbr
+    UnpackPassFile=
+    Extensions=
+    ScriptOrder=
+    ScriptPauseQueue=no
+    ShellOverride=
+    EventInterval=0
+---
+# Source: nzbget/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-nzbget
+  namespace: operators
+  labels:
+    helm.sh/chart: nzbget-0.0.1
+    app.kubernetes.io/name: nzbget
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "25.3.20250926"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6789
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: nzbget
+    app.kubernetes.io/instance: release-name
+---
+# Source: nzbget/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-nzbget
+  namespace: operators
+  labels:
+    helm.sh/chart: nzbget-0.0.1
+    app.kubernetes.io/name: nzbget
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "25.3.20250926"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nzbget
+      app.kubernetes.io/instance: release-name
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: nzbget-0.0.1
+        app.kubernetes.io/name: nzbget
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/version: "25.3.20250926"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        - name: copy-nzbget-config
+          image: busybox
+          command: ["sh", "-c", "rm -f /config/nzbget.conf && cp -v /temp/nzbget.conf /config/nzbget.conf && ls -l /config"]
+          volumeMounts:
+            - name: nzbget-temp-config
+              mountPath: /temp/nzbget.conf
+              subPath: nzbget.conf
+            - name: plex-media
+              mountPath: /downloads
+            - name: nzbget-config
+              mountPath: /config
+      containers:
+        - name: nzbget
+          image: docker.io/linuxserver/nzbget:latest
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+          env:
+            - name: TZ
+              value: Europe/Zurich
+            - name: NZBGET_USER
+              valueFrom:
+                secretKeyRef:
+                  name: entertainment-system-nzbget.apiauth
+                  key: username
+            - name: NZBGET_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: entertainment-system-nzbget.apiauth
+                  key: password
+          ports:
+            - name: http
+              containerPort: 6789
+              protocol: TCP
+          livenessProbe:
+            enabled: true
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            tcpSocket:
+              port: 6789
+          readinessProbe:
+            enabled: true
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            tcpSocket:
+              port: 6789
+          volumeMounts:
+            - name: plex-media
+              mountPath: /downloads
+            - name: nzbget-config
+              mountPath: /config
+      volumes:
+        - name: nzbget-temp-config
+          secret:
+            name: entertainment-system-nzbget.config
+        - name: plex-media
+          nfs:
+            server: 192.168.50.14
+            path: /plex
+        - name: nzbget-config
+          nfs:
+            server: 192.168.50.14
+            path: /k8s-dev/nzbget/config

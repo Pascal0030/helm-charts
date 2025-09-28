@@ -1,145 +1,50 @@
-# Default values for nzbget.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+## @section Global parameters
+global:
+  ## @param global.imageRegistry Global Docker Image registry
+  imageRegistry: ""
+  ## @param global.imagePullSecrets Global Docker registry secret names as an array
+  imagePullSecrets: []
 
-# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
-replicaCount: 1
-
-# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
-image:
-  repository: linuxserver/nzbget
-  # This sets the pull policy for images.
-  pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
-
-extraEnv:
-  - name: TZ
-    value: "Europe/Zurich"
-
-# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-imagePullSecrets: []
-# This is to override the chart name.
+## @section Common parameters
+## @param nameOverride String to partially override nzbget.fullname
 nameOverride: ""
+## @param fullnameOverride String to fully override nzbget.fullname
 fullnameOverride: ""
+## @param commonLabels Labels to add to all deployed objects
+commonLabels: {}
+## @param commonAnnotations Annotations to add to all deployed objects
+commonAnnotations: {}
 
-# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+## @section NZBGet image parameters
+image:
+  ## @param image.registry NZBGet image registry
+  registry: docker.io
+  ## @param image.repository NZBGet image repository
+  repository: linuxserver/nzbget
+  ## @param image.tag NZBGet image tag (immutable tags are recommended)
+  tag: ""
+  ## @param image.pullPolicy NZBGet image pull policy
+  imagePullPolicy: Always
 
-# This is for setting Kubernetes Annotations to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-podAnnotations: {}
-# This is for setting Kubernetes Labels to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-podLabels: {}
+## @section NZBGet Authentication parameters
+auth:
+  ## @param auth.username NZBGet custom user name
+  username: "admin"
+  ## @param auth.createSecret Automatically create a secret for NZBGet credentials
+  createSecret: true
+  ## @param auth.existingSecret Name of existing secret to use for NZBGet credentials
+  existingSecret: ""
+  secretKeys:
+    userNameKey: username
+    userPasswordKey: password
 
-podSecurityContext:
-  # fsGroup: 1000
-  runAsUser: 1000      # UID owning the directory
-  runAsGroup: 1000     # GID for 'users' group (usually 100 on Synology)
-  fsGroup: 1000        # Ensures group permissions on mounted volumes
-
-securityContext:
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000      # UID owning the directory
-  # runAsGroup: 1000     # GID for 'users' group (usually 100 on Synology)
-  # fsGroup: 1000        # Ensures group permissions on mounted volumes
-
-# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
-service:
-  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
-  type: ClusterIP
-  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 6789
-
-# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # cert-manager.io/cluster-issuer: letsencrypt-prod
-    # nginx.ingress.kubernetes.io/whitelist-source-range: "0.0.0.0/0"
-    # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-  hosts: []
-    # - host: nzbget.dev.cluster.rz-castellazzi.ip-ddns.com
-    #   paths:
-    #     - path: /
-    #       pathType: ImplementationSpecific
-  tls: []
-    # - hosts:
-    #     - nzbget.dev.cluster.rz-castellazzi.ip-ddns.com
-    #   secretName: nzbget-tls
-
-nzbgetcredentials: # Credentials for NZBGet WebUI (needs to be created manually)
-  username:
-    secretname: nzbget.apiauth
-    key: user
-  password:
-    secretname: nzbget.apiauth
-    key: password
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-# Additional volumes on the output Deployment definition.
-volumes: 
-  - name: nzbget-config
-    secret:
-      secretName: nzbget-config # if external secrets template v2 is not used, mount the configmap here
-      items:
-        - key: nzbget.conf
-          path: nzbget.conf
-  # - name: existing-pvc
-  #   persistentVolumeClaim:
-  #     claimName: persistance-nzbget
-  # - name: downloads
-  #   nfs:
-  #     server: 192.168.x.x
-  #     path: /downloads
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-  # - name: existing-pvc
-  #   mountPath: /config
-  # - name: downloads
-  #   mountPath: /downloads
-
-persistence:
-  enabled: false
-  accessModes: ReadWriteOnce
-  size: 2Gi
-  storageClassName: ""
-  annotations: {}
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-
+## @section NZBGet configuration parameters
 config:
+  ## @param config.existingConfigMap Name of existing ConfigMap with NZBGet configuration
+  existingConfigMap: ""
+  ## @param config.existingSecret Name of existing secret with the NZBGet configuration
+  existingSecret: ""
+  ## @param config.nzbgetconfig Custom configuration for NZBGet (nzbget.conf)
   nzbgetconfig: |
     MainDir=/config
     DestDir=/downloads/completed
@@ -162,8 +67,8 @@ config:
     Server1.Host=news.eweka.nl
     Server1.Encryption=yes
     Server1.Port=443
-    Server1.Username={{"{{ .username }}"}}
-    Server1.Password={{"{{ .password }}"}}
+    Server1.Username=
+    Server1.Password=
     Server1.JoinGroup=no
     Server1.Cipher=
     Server1.Connections=20
@@ -278,3 +183,166 @@ config:
     ScriptPauseQueue=no
     ShellOverride=
     EventInterval=0
+
+## @section NZBGet service parameters
+service:
+  ## @param service.type NZBGet service type
+  type: ClusterIP
+  ## @param service.port NZBGet service port
+  port: 6789
+  ## @param service.nodePort Node port for NZBGet service
+  nodePort: ""
+  ## @param service.clusterIP Static cluster IP or "None" for headless service
+  clusterIP: ""
+  ## @param service.annotations Additional custom annotations for NZBGet service
+  annotations: {}
+
+## @section Persistence parameters
+persistence:
+  ## @param persistence.enabled Enable NZBGet data persistence using PVC
+  enabled: false
+  ## @param persistence.storageClass PVC Storage Class for NZBGet data volume
+  storageClass: ""
+  ## @param persistence.accessModes PVC Access modes
+  accessModes:
+    - ReadWriteOnce
+  ## @param persistence.size PVC Storage Request for NZBGet data volume
+  size: 1Gi
+  ## @param persistence.annotations Additional custom annotations for the PVC
+  annotations: {}
+  ## @param persistence.selector Additional labels for the PVC
+  selector: {}
+
+## @section Pod Security Context
+podSecurityContext:
+  ## @param podSecurityContext.enabled Enable NZBGet pod Security Context
+  enabled: true
+  ## @param podSecurityContext.fsGroup Set NZBGet pod's Security Context fsGroup
+  fsGroup: 1000
+
+## @section Container Security Context
+containerSecurityContext:
+  ## @param containerSecurityContext.runAsUser Set NZBGet container's Security Context runAsUser
+  runAsUser: 1000
+  ## @param containerSecurityContext.runAsGroup Set NZBGet container's Security Context runAsGroup
+  runAsGroup: 1000
+  ## @param containerSecurityContext.runAsNonRoot Set NZBGet container's Security Context runAsNonRoot
+  runAsNonRoot: true
+  ## @param containerSecurityContext.allowPrivilegeEscalation Set NZBGet container's privilege escalation
+  allowPrivilegeEscalation: false
+
+## @section Resources parameters
+resources: {}
+  ## @param resources.limits The resources limits for the NZBGet containers
+  ## limits:
+  ##   memory: 300Mi
+  ## @param resources.requests The requested resources for the NZBGet containers
+  ## requests:
+  ##   memory: 300Mi
+  ##   cpu: 100m
+
+## @section Extra Configs
+## @param env A list of additional environment Variables
+env:
+  - name: TZ
+    value: "Europe/Zurich"
+## @param extraSecrets A list of additional existing secrets that will be mounted into the container
+extraSecrets: []
+##  - name: secret
+##    defaultMode: 0440
+##    mountPath: /mnt/secret
+## @param extraConfigs A list of additional existing configMaps that will be mounted into the container
+extraVolumes: []
+##  - name: volume
+##    mountPath: /mnt/tmp
+##    pvcName: pvc-001
+nfsVolumes: []
+##  - name: plex-media
+##    mountPath: /downloads
+##    nfs:
+##      server: 192.168.x.x
+##      path: /downloads
+
+## @section NZBGet container's liveness probe parameters
+livenessProbe:
+  ## @param livenessProbe.enabled Enable livenessProbe on MariaDB containers
+  enabled: true
+  ## @param livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  initialDelaySeconds: 30
+  ## @param livenessProbe.periodSeconds Period seconds for livenessProbe
+  periodSeconds: 10
+  ## @param livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  timeoutSeconds: 1
+  ## @param livenessProbe.failureThreshold Failure threshold for livenessProbe
+  failureThreshold: 3
+  ## @param livenessProbe.successThreshold Success threshold for livenessProbe
+  successThreshold: 1
+
+## @section NZBGet container's readiness probe parameters
+readinessProbe:
+  ## @param readinessProbe.enabled Enable readinessProbe on MariaDB containers
+  enabled: true
+  ## @param readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  initialDelaySeconds: 5
+  ## @param readinessProbe.periodSeconds Period seconds for readinessProbe
+  periodSeconds: 10
+  ## @param readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  timeoutSeconds: 1
+  ## @param readinessProbe.failureThreshold Failure threshold for readinessProbe
+  failureThreshold: 3
+  ## @param readinessProbe.successThreshold Success threshold for readinessProbe
+  successThreshold: 1
+
+## @section NZBGet container's startup probe parameters
+startupProbe:
+  ## @param startupProbe.enabled Enable startupProbe on MariaDB containers
+  enabled: false
+  ## @param startupProbe.initialDelaySeconds Initial delay seconds for startupProbe
+  initialDelaySeconds: 30
+  ## @param startupProbe.periodSeconds Period seconds for startupProbe
+  periodSeconds: 10
+  ## @param startupProbe.timeoutSeconds Timeout seconds for startupProbe
+  timeoutSeconds: 1
+  ## @param startupProbe.failureThreshold Failure threshold for startupProbe
+  failureThreshold: 15
+  ## @param startupProbe.successThreshold Success threshold for startupProbe
+  successThreshold: 1
+
+## @section Ingress parameters
+ingress:
+  ## @param ingress.enabled Enable ingress record generation for NZBGet
+  enabled: false
+  ## @param ingress.className IngressClass that will be used to implement the Ingress (Kubernetes 1.18+)
+  className: ""
+  ## @param ingress.annotations Additional annotations for the Ingress resource
+  annotations:
+    kubernetes.io/hostname: nzbget.local
+  ## @param ingress.hosts An array with hosts and paths
+  hosts:
+    - host: nzbget.local
+      paths:
+        - path: /
+          pathType: Prefix
+  ## @param ingress.tls TLS configuration for the Ingress
+  tls: []
+
+## @section Network Policy configuration
+networkPolicy:
+  ## @param networkPolicy.enabled Specifies whether a NetworkPolicy should be created
+  enabled: false
+  ## @param networkPolicy.allowExternal Don't require client label for connections
+  allowExternal: true
+  ## @param networkPolicy.ingressNSMatchLabels Labels to match to allow traffic from other namespaces
+  ingressNSMatchLabels: {}
+  ## @param networkPolicy.ingressNSPodMatchLabels Pod labels to match to allow traffic from other namespaces
+  ingressNSPodMatchLabels: {}
+
+## @section Pod configuration
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+## @param extraObjects Array of extra objects to deploy with the release
+extraObjects: []

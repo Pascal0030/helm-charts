@@ -1,0 +1,16 @@
+{{- if and (not .Values.config.existingConfigMap) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nzbget.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nzbget.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  nzbget.conf: |
+    {{ .Values.config.nzbgetconfig | nindent 4 }}
+{{- end }}

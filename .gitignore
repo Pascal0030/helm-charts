@@ -1,2 +1,4 @@
-/**/values-dev.yaml
+/**/values-test.yaml
 /**/Chart.lock
+/charts/**/charts**
+/charts/temp/**

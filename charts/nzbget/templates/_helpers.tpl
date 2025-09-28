@@ -2,7 +2,7 @@
 Expand the name of the chart.
 */}}
 {{- define "nzbget.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- include "common.name" . -}}
 {{- end }}
 
 {{/*
@@ -11,52 +11,72 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "nzbget.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
-{{- end }}
-{{- end }}
+{{- include "common.fullname" . -}}
 {{- end }}
 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "nzbget.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- include "common.chart" . -}}
 {{- end }}
 
 {{/*
 Common labels
 */}}
 {{- define "nzbget.labels" -}}
-helm.sh/chart: {{ include "nzbget.chart" . }}
-{{ include "nzbget.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- include "common.labels" . -}}
 {{- end }}
 
 {{/*
 Selector labels
 */}}
 {{- define "nzbget.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "nzbget.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+{{- include "common.selectorLabels" . -}}
 {{- end }}
 
 {{/*
-Create the name of the service account to use
+Return the proper Nzbget image name
 */}}
-{{- define "nzbget.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "nzbget.fullname" .) .Values.serviceAccount.name }}
+{{- define "nzbget.image" -}}
+{{- include "common.image" (dict "image" .Values.image "global" .Values.global) -}}
+{{- end }}
+
+{{/*
+Return the proper Docker Image Registry Secret Names
+*/}}
+{{- define "nzbget.imagePullSecrets" -}}
+{{ include "common.images.renderPullSecrets" (dict "images" (list .Values.image) "context" .) }}
+{{- end -}}
+{{/*
+Get the secret name for Nzbget root password
+*/}}
+{{- define "nzbget.secretName" -}}
+{{- if .Values.auth.existingSecret }}
+{{- .Values.auth.existingSecret }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- include "nzbget.fullname" . }}
 {{- end }}
 {{- end }}
+
+{{/*
+Validate values of Nzbget - Authentication
+*/}}
+{{- define "nzbget.validateValues.auth" -}}
+{{/* No validation needed - empty rootPassword will trigger auto-generation */}}
+{{- end }}
+
+{{/*
+Return the Nzbget ConfigMap Name
+*/}}
+{{- define "nzbget.configMapName" -}}
+{{- if .Values.config.existingConfigMap }}
+{{- .Values.config.existingConfigMap }}
+{{- else }}
+{{- include "nzbget.fullname" . }}
+{{- end }}
+{{- end }}
+
+{{- define "chrt-6456.password" -}}
+{{- randAlphaNum 24 | nospace -}}
+{{- end -}}
