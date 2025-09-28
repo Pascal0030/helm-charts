@@ -7,7 +7,7 @@
       "type": "object",
       "properties": {
         "imageRegistry": { "type": "string" },
-        "imagePullSecrets": {
+        "imagePullSecrets": { 
           "type": "array",
           "items": { "type": "string" }
         }
