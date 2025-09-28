@@ -137,6 +137,10 @@ spec:
         - name: nzbget-temp-config
           secret:
             name: {{ .Values.config.existingSecret }}
+        {{- else if (.Values.config.useExternalSecret) }}
+        - name: nzbget-temp-config
+          secret:
+            secretName: {{ include "nzbget.fullname" . }}-config
         {{- end }}
         {{- range $secret := .Values.extraSecrets }}
         - name: {{ $secret.name }}

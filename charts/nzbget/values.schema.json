@@ -46,6 +46,7 @@
       "properties": {
         "existingConfigMap": { "type": "string" },
         "existingSecret": { "type": "string" },
+        "useExternalSecret": { "type": "boolean" },
         "nzbgetconfig": { "type": "string" }
       }
     },

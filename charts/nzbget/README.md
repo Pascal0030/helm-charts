@@ -40,6 +40,7 @@ The following table lists the configurable parameters of the NZBGet chart and th
 | `auth.existingSecret`             | Name of existing secret for credentials             | `""`                   |
 | `config.existingConfigMap`        | Existing ConfigMap with NZBGet configuration        | `""`                   |
 | `config.existingSecret`           | Existing secret with NZBGet configuration           | `""`                   |
+| `config.useExternalSecret`        | Use ExternalSecret to template nzbget.conf with secrets from a configmap/secrets manager | `false`                |
 | `config.nzbgetconfig`             | Custom configuration for NZBGet (nzbget.conf)       | See `values.yaml`      |
 | `service.type`                    | Kubernetes service type                             | `ClusterIP`            |
 | `service.port`                    | Service port                                        | `6789`                 |

@@ -40,10 +40,27 @@ auth:
 
 ## @section NZBGet configuration parameters
 config:
-  ## @param config.existingConfigMap Name of existing ConfigMap with NZBGet configuration
+  ## @param config.existingConfigMap Name of existing ConfigMap with NZBGet configuration (use secret or existing configmap but not both)
   existingConfigMap: ""
   ## @param config.existingSecret Name of existing secret with the NZBGet configuration
   existingSecret: ""
+  ## @param config.useExternalSecret Use ExternalSecret to template the nzbget.conf with secrets from a the configmap and secrets manager
+  useExternalSecret: false
+  externalSecret:
+    refreshInterval: 1h
+    secretStoreRef:
+      name: ""
+      kind: ""
+    target:
+      template:
+        engineVersion: v2
+    data: []
+    ## - secretKey: username
+    ##   remoteRef:
+    ##     key: ""
+    ## - secretKey: password
+    ##   remoteRef:
+    ##     key: ""
   ## @param config.nzbgetconfig Custom configuration for NZBGet (nzbget.conf)
   nzbgetconfig: |
     MainDir=/config
