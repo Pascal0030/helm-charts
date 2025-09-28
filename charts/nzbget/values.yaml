@@ -35,7 +35,7 @@ auth:
   ## @param auth.existingSecret Name of existing secret to use for NZBGet credentials
   existingSecret: ""
   secretKeys:
-    userNameKey: username
+    userNameKey: user
     userPasswordKey: password
 
 ## @section NZBGet configuration parameters
@@ -246,7 +246,7 @@ containerSecurityContext:
   ## @param containerSecurityContext.runAsNonRoot Set NZBGet container's Security Context runAsNonRoot
   runAsNonRoot: true
   ## @param containerSecurityContext.allowPrivilegeEscalation Set NZBGet container's privilege escalation
-  allowPrivilegeEscalation: false
+  allowPrivilegeEscalation: true
 
 ## @section Resources parameters
 resources: {}

@@ -36,8 +36,22 @@ spec:
       {{- end }}
       initContainers:
         - name: copy-nzbget-config
+          securityContext: {{- toYaml .Values.containerSecurityContext | nindent 12 }}
           image: busybox
-          command: ["sh", "-c", "rm -f /config/nzbget.conf && cp -v /temp/nzbget.conf /config/nzbget.conf && ls -l /config"]
+          env:
+            - name: PUID
+              value: {{ .Values.podSecurityContext.fsGroup | quote }}
+            - name: PGID
+              value: {{ .Values.podSecurityContext.fsGroup | quote }}
+          command:
+            - sh
+            - -c
+            - >
+                echo "PUID=$PUID, PGID=$PGID" &&
+                cp -v /temp/nzbget.conf /config/nzbget.conf &&
+                chown "${PUID}:${PGID}" /config/nzbget.conf &&
+                chmod 664 /config/nzbget.conf &&
+                ls -l /config
           volumeMounts:
             - name: nzbget-temp-config
               mountPath: /temp/nzbget.conf
@@ -90,21 +104,18 @@ spec:
               protocol: TCP
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
-            tcpSocket:
-              port: {{ .Values.service.port | default 6789 }}
+            {{- $probe := merge (omit .Values.livenessProbe "enabled") (dict "tcpSocket" (dict "port" (.Values.service.port | default 6789))) }}
+            {{- $probe | toYaml | nindent 12 }}
           {{- end }}
           {{- if .Values.readinessProbe.enabled }}
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
-            tcpSocket:
-              port: {{ .Values.service.port | default 6789 }}
+            {{- $probe := merge (omit .Values.readinessProbe "enabled") (dict "tcpSocket" (dict "port" (.Values.service.port | default 6789))) }}
+            {{- $probe | toYaml | nindent 12 }}
           {{- end }}
           {{- if .Values.startupProbe.enabled }}
           startupProbe:
-            {{- toYaml .Values.startupProbe | nindent 12 }}
-            tcpSocket:
-              port: {{ .Values.service.port | default 6789 }}
+            {{- $probe := merge (omit .Values.startupProbe "enabled") (dict "tcpSocket" (dict "port" (.Values.service.port | default 6789))) }}
+            {{- $probe | toYaml | nindent 12 }}
           {{- end }}
           {{- if .Values.resources }}
           resources:
@@ -132,15 +143,24 @@ spec:
         - name: nzbget-temp-config
           configMap:
             name: {{ .Values.config.existingConfigMap }}
+            items:
+            - key: nzbget.conf
+              path: nzbget.conf
         {{- end }}
         {{- if .Values.config.existingSecret }}
         - name: nzbget-temp-config
           secret:
-            name: {{ .Values.config.existingSecret }}
+            secretName: {{ .Values.config.existingSecret }}
+            items:
+            - key: nzbget.conf
+              path: nzbget.conf
         {{- else if (.Values.config.useExternalSecret) }}
         - name: nzbget-temp-config
           secret:
             secretName: {{ include "nzbget.fullname" . }}-config
+            items:
+            - key: nzbget.conf
+              path: nzbget.conf
         {{- end }}
         {{- range $secret := .Values.extraSecrets }}
         - name: {{ $secret.name }}
