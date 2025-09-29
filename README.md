@@ -1,8 +1,13 @@
-# Helm-Charts
+# helm-charts
 Helm Charts for K8s
 
-
-## Clone Chart
 ```bash
 helm repo add helm-charts https://pascal0030.github.io/helm-charts/
 ```
+
+```bash
+helm show chart helm-charts/<chart>
+```
+
+### Github source repository
+[Github Helm Charts Repository](https://github.com/Pascal0030/helm-charts)
