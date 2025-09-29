@@ -10,5 +10,5 @@ sources:
 
 dependencies:
   - name: common
-    version: 1.1.1
+    version: 1.x.x
     repository: "https://pascal0030.github.io/helm-charts/"
