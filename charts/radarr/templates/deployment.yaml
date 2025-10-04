@@ -186,7 +186,7 @@ spec:
           imagePullPolicy: {{ .Values.metrics.image.imagePullPolicy }}
           env:
             - name: PORT
-              value: {{ .Values.metrics.containerPort | default 9707 }}
+              value: {{ .Values.metrics.containerPort | default 9707 | quote }}
             - name: URL
               value: "http://{{ include "radarr.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port | default 7878 }}"
             {{- if .Values.config.sidecarContainer}}
