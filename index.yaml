@@ -13,6 +13,23 @@ entries:
     urls:
     - common-1.1.1.tgz
     version: 1.1.1
+  lidarr:
+  - apiVersion: v2
+    appVersion: 25.3.20250926
+    created: "2025-10-04T18:50:38.092632638Z"
+    dependencies:
+    - name: common
+      repository: https://pascal0030.github.io/helm-charts/
+      version: 1.x.x
+    description: Lidarr is a music collection manager for Usenet and BitTorrent users.
+    digest: 36583bbe87f3ac0d2715688be8b33e3a89c3d1c0a655e38d236efe466cdc20cf
+    name: lidarr
+    sources:
+    - https://hub.docker.com/r/linuxserver/lidarr
+    type: application
+    urls:
+    - lidarr-0.0.1.tgz
+    version: 0.0.1
   nzbget:
   - apiVersion: v2
     appVersion: 1.16.0
@@ -299,4 +316,4 @@ entries:
     urls:
     - sonarr-0.0.1.tgz
     version: 0.0.1
-generated: "2025-10-04T18:35:38.354593269Z"
+generated: "2025-10-04T18:50:38.092676229Z"
