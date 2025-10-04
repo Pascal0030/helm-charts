@@ -1,0 +1,144 @@
+{{- include "radarr.validateValues.auth" .}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "radarr.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "radarr.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "radarr.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "radarr.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+{{- with (include "radarr.imagePullSecrets" .) }}
+{{- . | nindent 6 }}
+{{- end }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext:
+        fsGroup: {{ .Values.podSecurityContext.fsGroup }}
+      {{- end }}
+      serviceAccountName: {{ include "radarr.fullname" . }}-sa
+      containers:
+        - name: extract-apikey
+          image: mcp/kubectl-mcp-server:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for config files..."
+              while [ ! -f /config-radarr/config.xml ]; do
+                echo "Waiting for all config files to be present..."
+                sleep 5
+              done
+
+              echo "All config files found. Starting sync loop."
+
+              while true; do
+                RADARR_KEY=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /config-radarr/config.xml || echo "missing")
+                kubectl create secret generic {{ .Values.config.secretName | quote }} \
+                  --from-literal=radarr=$RADARR_KEY \
+                  --dry-run=client -o yaml | kubectl apply -f -
+
+                sleep 3600 # 1 hour
+              done
+          volumeMounts:
+            - name: config
+              mountPath: /config-radarr
+              readonly: true
+        - name: radarr
+          image: {{ include "radarr.image" . }}
+          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+          securityContext: {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          {{- if .Values.env }}
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: radarr-http
+              containerPort: {{ .Values.service.port | default 7878 }}
+              protocol: TCP
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            {{- $probe := merge (omit .Values.livenessProbe "enabled") (dict "httpGet" (dict "port" (.Values.service.port | default 7878) "path" "/ping")) }}
+            {{- $probe | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            {{- $probe := merge (omit .Values.readinessProbe "enabled") (dict "httpGet" (dict "port" (.Values.service.port | default 7878) "path" "/ping")) }}
+            {{- $probe | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            {{- $probe := merge (omit .Values.startupProbe "enabled") (dict "httpGet" (dict "port" (.Values.service.port | default 7878) "path" "/ping")) }}
+            {{- $probe | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /config-radarr
+            {{- if .Values.extraVolumes }}
+            {{- range $storage := .Values.extraVolumes }}
+            - name: {{ $storage.name }}
+              mountPath: {{ $storage.mountPath }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.nfsVolumes }}
+            {{- range $nfsstorage := .Values.nfsVolumes }}
+            - name: {{ $nfsstorage.name }}
+              mountPath: {{ $nfsstorage.mountPath }}
+            {{- end }}
+            {{- end }}
+      volumes:
+        {{- if .Values.persistence.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ include "radarr.fullname" . }}-pvc
+        {{- else }}
+        - name: config
+          emptyDir: {}
+        {{- end }}
+        {{- range $storage := .Values.extraVolumes }}
+        - name: {{ $storage.name }}
+          persistentVolumeClaim:
+            claimName: {{ $storage.pvcName }}
+        {{- end }}
+        {{- range $nfsstorage := .Values.nfsVolumes }}
+        - name: {{ $nfsstorage.name }}
+          nfs:
+            server: {{ $nfsstorage.nfs.server }}
+            path: {{ $nfsstorage.nfs.path }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,203 @@
+## @section Global parameters
+global:
+  ## @param global.imageRegistry Global Docker Image registry
+  imageRegistry: ""
+  ## @param global.imagePullSecrets Global Docker registry secret names as an array
+  imagePullSecrets: []
+
+## @section Common parameters
+## @param nameOverride String to partially override radarr.fullname
+nameOverride: ""
+## @param fullnameOverride String to fully override radarr.fullname
+fullnameOverride: ""
+## @param commonLabels Labels to add to all deployed objects
+commonLabels: {}
+## @param commonAnnotations Annotations to add to all deployed objects
+commonAnnotations: {}
+
+## @section radarr image parameters
+image:
+  ## @param image.registry radarr image registry
+  registry: docker.io
+  ## @param image.repository radarr image repository
+  repository: linuxserver/radarr
+  ## @param image.tag radarr image tag (immutable tags are recommended)
+  tag: "latest"
+  ## @param image.pullPolicy radarr image pull policy
+  imagePullPolicy: Always
+
+## @section radarr configuration parameters
+config:
+  ## @param config.sidecarContainer Enable a sidecar container to export the api key to a secret
+  sidecarContainer: false
+  secretName: media-app-api-keys
+
+## @section radarr service parameters
+service:
+  ## @param service.type radarr service type
+  type: ClusterIP
+  ## @param service.port radarr service port
+  port: 7878
+  ## @param service.nodePort Node port for radarr service
+  nodePort: ""
+  ## @param service.clusterIP Static cluster IP or "None" for headless service
+  clusterIP: ""
+  ## @param service.annotations Additional custom annotations for radarr service
+  annotations: {}
+
+## @section Persistence parameters
+persistence:
+  ## @param persistence.enabled Enable radarr data persistence using PVC
+  enabled: true
+  ## @param persistence.storageClass PVC Storage Class for radarr data volume
+  storageClass: ""
+  ## @param persistence.accessModes PVC Access modes
+  accessModes:
+    - ReadWriteOnce
+  ## @param persistence.size PVC Storage Request for radarr data volume
+  size: 2Gi
+  ## @param persistence.annotations Additional custom annotations for the PVC
+  annotations: {}
+  ## @param persistence.selector Additional labels for the PVC
+  selector: {}
+
+## @section Pod Security Context
+podSecurityContext:
+  ## @param podSecurityContext.enabled Enable radarr pod Security Context
+  enabled: true
+  ## @param podSecurityContext.fsGroup Set radarr pod's Security Context fsGroup
+  fsGroup: 1000
+
+## @section Container Security Context
+containerSecurityContext:
+  ## @param containerSecurityContext.runAsUser Set radarr container's Security Context runAsUser
+  runAsUser: 1000
+  ## @param containerSecurityContext.runAsGroup Set radarr container's Security Context runAsGroup
+  runAsGroup: 1000
+  ## @param containerSecurityContext.runAsNonRoot Set radarr container's Security Context runAsNonRoot
+  runAsNonRoot: true
+  ## @param containerSecurityContext.allowPrivilegeEscalation Set radarr container's privilege escalation
+  allowPrivilegeEscalation: true
+
+## @section Resources parameters
+resources: {}
+  ## @param resources.limits The resources limits for the radarr containers
+  ## limits:
+  ##   memory: 300Mi
+  ## @param resources.requests The requested resources for the radarr containers
+  ## requests:
+  ##   memory: 300Mi
+  ##   cpu: 100m
+
+## @section Extra Configs
+## @param env A list of additional environment Variables
+env:
+  - name: TZ
+    value: "Europe/Zurich"
+## @param extraSecrets A list of additional existing secrets that will be mounted into the container
+extraSecrets: []
+##  - name: secret
+##    defaultMode: 0440
+##    mountPath: /mnt/secret
+## @param extraConfigs A list of additional existing configMaps that will be mounted into the container
+extraVolumes: []
+##  - name: volume
+##    mountPath: /mnt/tmp
+##    pvcName: pvc-001
+nfsVolumes: []
+##  - name: plex-media
+##    mountPath: /downloads
+##    nfs:
+##      server: 192.168.x.x
+##      path: /downloads
+
+## @section radarr container's liveness probe parameters
+livenessProbe:
+  ## @param livenessProbe.enabled Enable livenessProbe on MariaDB containers
+  enabled: true
+  ## @param livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  initialDelaySeconds: 30
+  ## @param livenessProbe.periodSeconds Period seconds for livenessProbe
+  periodSeconds: 10
+  ## @param livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  timeoutSeconds: 1
+  ## @param livenessProbe.failureThreshold Failure threshold for livenessProbe
+  failureThreshold: 3
+  ## @param livenessProbe.successThreshold Success threshold for livenessProbe
+  successThreshold: 1
+
+## @section radarr container's readiness probe parameters
+readinessProbe:
+  ## @param readinessProbe.enabled Enable readinessProbe on MariaDB containers
+  enabled: true
+  ## @param readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  initialDelaySeconds: 5
+  ## @param readinessProbe.periodSeconds Period seconds for readinessProbe
+  periodSeconds: 10
+  ## @param readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  timeoutSeconds: 1
+  ## @param readinessProbe.failureThreshold Failure threshold for readinessProbe
+  failureThreshold: 3
+  ## @param readinessProbe.successThreshold Success threshold for readinessProbe
+  successThreshold: 1
+
+## @section radarr container's startup probe parameters
+startupProbe:
+  ## @param startupProbe.enabled Enable startupProbe on MariaDB containers
+  enabled: false
+  ## @param startupProbe.initialDelaySeconds Initial delay seconds for startupProbe
+  initialDelaySeconds: 30
+  ## @param startupProbe.periodSeconds Period seconds for startupProbe
+  periodSeconds: 10
+  ## @param startupProbe.timeoutSeconds Timeout seconds for startupProbe
+  timeoutSeconds: 1
+  ## @param startupProbe.failureThreshold Failure threshold for startupProbe
+  failureThreshold: 15
+  ## @param startupProbe.successThreshold Success threshold for startupProbe
+  successThreshold: 1
+
+## @section Ingress parameters
+ingress:
+  ## @param ingress.enabled Enable ingress record generation for radarr
+  enabled: true
+  ## @param ingress.className IngressClass that will be used to implement the Ingress (Kubernetes 1.18+)
+  className: ""
+  ## @param ingress.annotations Additional annotations for the Ingress resource
+  annotations:
+    kubernetes.io/hostname: radarr.local
+  ## @param ingress.hosts An array with hosts and paths
+  hosts:
+    - host: radarr.local
+      paths:
+        - path: /
+          pathType: Prefix
+  ## @param ingress.tls TLS configuration for the Ingress
+  tls: []
+
+## @section Network Policy configuration
+networkPolicy:
+  ## @param networkPolicy.enabled Specifies whether a NetworkPolicy should be created
+  enabled: false
+  ## @param networkPolicy.allowExternal Don't require client label for connections
+  allowExternal: true
+  ## @param networkPolicy.ingressNSMatchLabels Labels to match to allow traffic from other namespaces
+  ingressNSMatchLabels: {}
+  ## @param networkPolicy.ingressNSPodMatchLabels Pod labels to match to allow traffic from other namespaces
+  ingressNSPodMatchLabels: {}
+  
+  destinations:
+    nzbget:
+      Port: 6789
+      selectorLabels:
+        app.kubernetes.io/name: nzbget
+        app.kubernetes.io/instance: nzbget
+
+## @section Pod configuration
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+## @param extraObjects Array of extra objects to deploy with the release
+extraObjects: []
