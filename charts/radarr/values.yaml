@@ -159,7 +159,7 @@ startupProbe:
 ## @section Ingress parameters
 ingress:
   ## @param ingress.enabled Enable ingress record generation for radarr
-  enabled: true
+  enabled: false
   ## @param ingress.className IngressClass that will be used to implement the Ingress (Kubernetes 1.18+)
   className: ""
   ## @param ingress.annotations Additional annotations for the Ingress resource
