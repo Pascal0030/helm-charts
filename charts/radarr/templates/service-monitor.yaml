@@ -11,7 +11,7 @@ spec:
     matchLabels:
       {{- include "radarr-exporter.labels" . | nindent 8 }}
   endpoints:
-    - port: {{ .Values.metrics.service.port | default 9707 }}
+    - port: metrics
       interval: {{ .Values.metrics.service.interval | default "30s" }}
       scrapeTimeout: {{ .Values.metrics.service.scrapeTimeout | default "30s" }}
       path: /metrics
