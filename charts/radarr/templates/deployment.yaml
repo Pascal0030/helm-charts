@@ -36,7 +36,9 @@ spec:
       securityContext:
         fsGroup: {{ .Values.podSecurityContext.fsGroup }}
       {{- end }}
+      {{- if .Values.config.sidecarContainer }}
       serviceAccountName: {{ include "radarr.fullname" . }}-sa
+      {{- end }}
       containers:
         - name: extract-apikey
           image: mcp/kubectl-mcp-server:latest
