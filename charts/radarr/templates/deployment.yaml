@@ -41,32 +41,6 @@ spec:
       serviceAccountName: {{ include "radarr.fullname" . }}-sa
       {{- end }}
       containers:
-        - name: extract-apikey
-          image: mcp/kubectl-mcp-server:latest
-          command:
-            - /bin/sh
-            - -c
-            - |
-              echo "Waiting for config files..."
-              while [ ! -f /config/config.xml ]; do
-                echo "Waiting for all config files to be present..."
-                sleep 5
-              done
-
-              echo "All config files found. Starting sync loop."
-
-              while true; do
-                RADARR_KEY=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /config/config.xml || echo "missing")
-                kubectl create secret generic {{ .Values.config.secretName | quote }} \
-                  --from-literal=radarr=$RADARR_KEY \
-                  --dry-run=client -o yaml | kubectl apply -f -
-
-                sleep 3600 # 1 hour
-              done
-          volumeMounts:
-            - name: config
-              mountPath: /config
-              readonly: true
         - name: radarr
           image: {{ include "radarr.image" . }}
           imagePullPolicy: {{ .Values.image.imagePullPolicy }}
@@ -113,6 +87,32 @@ spec:
               mountPath: {{ $nfsstorage.mountPath }}
             {{- end }}
             {{- end }}
+        - name: extract-apikey
+          image: mcp/kubectl-mcp-server:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for config files..."
+              while [ ! -f /config/config.xml ]; do
+                echo "Waiting for all config files to be present..."
+                sleep 5
+              done
+
+              echo "All config files found. Starting sync loop."
+
+              while true; do
+                RADARR_KEY=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /config/config.xml || echo "missing")
+                kubectl create secret generic {{ .Values.config.secretName | quote }} \
+                  --from-literal=radarr=$RADARR_KEY \
+                  --dry-run=client -o yaml | kubectl apply -f -
+
+                sleep 3600 # 1 hour
+              done
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readonly: true
       volumes:
         {{- if .Values.persistence.enabled }}
         - name: config
