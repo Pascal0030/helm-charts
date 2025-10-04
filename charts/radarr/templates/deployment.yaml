@@ -145,3 +145,87 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+---
+{{- if .Values.metrics.enabled }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ include "radarr.fullname" . }}-exporter
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "radarr-exporter.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      {{- include "radarr-exporter.labels" . | nindent 6 }}
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ include "radarr.fullname" . }}
+              app.kubernetes.io/instance: {{ .Release.Name }}
+          topologyKey: "kubernetes.io/hostname"
+  template:
+    metadata:
+      labels:
+        {{- include "radarr-exporter.labels" . | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "monitoring"
+    spec:
+      containers:
+        - name: radarr-exporter
+          image: {{ .Values.metrics.image.registry }}/{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}
+          imagePullPolicy: {{ .Values.metrics.image.imagePullPolicy }}
+          env:
+            - name: PORT
+              value: {{ .Values.metrics.containerPort | default 9707 }}
+            - name: URL
+              value: "http://{{ include "radarr.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port | default 7878 }}"
+            {{- if .Values.config.sidecarContainer}}
+            - name: APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.secretName }}
+                  key: radarr
+            {{- else }}
+            - name: APIKEY
+              value: "{{ .Values.metrics.apiKey }}"
+            {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.metrics.containerPort | default 9707 }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            failureThreshold: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            failureThreshold: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.metrics.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

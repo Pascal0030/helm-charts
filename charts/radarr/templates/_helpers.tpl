@@ -29,6 +29,14 @@ Common labels
 {{- end }}
 
 {{/*
+Exporter Common labels
+*/}}
+{{- define "radarr-exporter.labels" -}}
+app.kubernetes.io/name: {{ include "radarr.fullname" . }}-exporter
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
 Selector labels
 */}}
 {{- define "radarr.selectorLabels" -}}

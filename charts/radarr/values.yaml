@@ -29,7 +29,7 @@ image:
 ## @section radarr configuration parameters
 config:
   ## @param config.sidecarContainer Enable a sidecar container to export the api key to a secret
-  sidecarContainer: false
+  sidecarContainer: true
   secretName: radarr-api-key
 
 ## @section radarr service parameters
@@ -191,6 +191,47 @@ networkPolicy:
       selectorLabels:
         app.kubernetes.io/name: nzbget
         app.kubernetes.io/instance: nzbget
+
+metrics:
+  ## @param metrics.enabled Enable the Radarr metrics exporter deployment
+  enabled: false
+  image:
+    ## @param metrics.image Docker image for the Radarr metrics exporter
+    registry: ghcr.io
+    repository: onedr0p/exportarr
+    tag: v2.3 # https://github.com/onedr0p/exportarr/pkgs/container/exportarr
+    imagePullPolicy: IfNotPresent
+  ## @param metrics.apiKey API key for Radarr, only used if config.sidecarContainer is false
+  apiKey: ""
+  serviceMonitor:
+    ## @param metrics.service.enabled Create a ServiceMonitor for the Radarr metrics exporter
+    enabled: false
+    ## @param metrics.service.port Port the ServiceMonitor should scrape
+    interval: 4m
+    ## @param metrics.service.scrapeTimeout Scrape timeout for the ServiceMonitor
+    scrapeTimeout: 90s
+    ## @param metrics.service.labels Additional labels for the ServiceMonitor
+    labels: {}
+    ## @param metrics.service.metricRelabelings Metric relabelings for the ServiceMonitor
+    metricRelabelings: []
+    ## @param metrics.service.relabelings Relabelings for the ServiceMonitor
+    relabelings: []
+  service:
+    ## @param metrics.service.port Port the Radarr metrics exporter listens on
+    port: 9707
+    ## @param metrics.service.interval Scrape interval for the Radarr metrics exporter
+    annotations: {}
+  ## @param metrics.containerPort Port the Radarr metrics exporter container listens on
+  containerPort: 9707
+  resources: {}
+    ## @param metrics.resources.limits The resources limits for the Radarr metrics exporter container
+    ## limits:
+    ##   cpu: 500m
+    ##   memory: 256Mi
+    ## @param metrics.resources.requests The requested resources for the Radarr metrics exporter container
+    ## requests:
+    ##   memory: 64Mi
+    ##   cpu: 100m
 
 ## @section Pod configuration
 podAnnotations: {}
