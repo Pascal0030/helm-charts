@@ -1,0 +1,232 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lidarr.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lidarr.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "lidarr.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "lidarr.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+{{- with (include "lidarr.imagePullSecrets" .) }}
+{{- . | nindent 6 }}
+{{- end }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext:
+        fsGroup: {{ .Values.podSecurityContext.fsGroup }}
+      {{- end }}
+      {{- if .Values.config.sidecarContainer }}
+      serviceAccountName: {{ include "lidarr.fullname" . }}-sa
+      {{- end }}
+      containers:
+        - name: lidarr
+          image: {{ include "lidarr.image" . }}
+          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+          securityContext: {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          {{- if .Values.env }}
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: lidarr-http
+              containerPort: {{ .Values.service.port | default 8686 }}
+              protocol: TCP
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            {{- $probe := merge (omit .Values.livenessProbe "enabled") (dict "httpGet" (dict "port" (.Values.service.port | default 8686) "path" "/ping")) }}
+            {{- $probe | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            {{- $probe := merge (omit .Values.readinessProbe "enabled") (dict "httpGet" (dict "port" (.Values.service.port | default 8686) "path" "/ping")) }}
+            {{- $probe | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            {{- $probe := merge (omit .Values.startupProbe "enabled") (dict "httpGet" (dict "port" (.Values.service.port | default 8686) "path" "/ping")) }}
+            {{- $probe | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            {{- if .Values.extraVolumes }}
+            {{- range $storage := .Values.extraVolumes }}
+            - name: {{ $storage.name }}
+              mountPath: {{ $storage.mountPath }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.nfsVolumes }}
+            {{- range $nfsstorage := .Values.nfsVolumes }}
+            - name: {{ $nfsstorage.name }}
+              mountPath: {{ $nfsstorage.mountPath }}
+            {{- end }}
+            {{- end }}
+        - name: extract-apikey
+          image: mcp/kubectl-mcp-server:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for config files..."
+              while [ ! -f /config/config.xml ]; do
+                echo "Waiting for all config files to be present..."
+                sleep 5
+              done
+
+              echo "All config files found. Starting sync loop."
+
+              while true; do
+                LIDARR_KEY=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /config/config.xml || echo "missing")
+                kubectl create secret generic {{ .Values.config.secretName | quote }} \
+                  --from-literal=lidarr=$LIDARR_KEY \
+                  --dry-run=client -o yaml | kubectl apply -f -
+
+                sleep 3600 # 1 hour
+              done
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readonly: true
+      volumes:
+        {{- if .Values.persistence.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ include "lidarr.fullname" . }}-pvc
+        {{- else }}
+        - name: config
+          emptyDir: {}
+        {{- end }}
+        {{- range $storage := .Values.extraVolumes }}
+        - name: {{ $storage.name }}
+          persistentVolumeClaim:
+            claimName: {{ $storage.pvcName }}
+        {{- end }}
+        {{- range $nfsstorage := .Values.nfsVolumes }}
+        - name: {{ $nfsstorage.name }}
+          nfs:
+            server: {{ $nfsstorage.nfs.server }}
+            path: {{ $nfsstorage.nfs.path }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+{{- if .Values.metrics.enabled }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ include "lidarr.fullname" . }}-exporter
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lidarr-exporter.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      {{- include "lidarr-exporter.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "lidarr-exporter.labels" . | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "monitoring"
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: {{ include "lidarr.fullname" . }}
+                  app.kubernetes.io/instance: {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: lidarr-exporter
+          image: {{ .Values.metrics.image.registry }}/{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}
+          imagePullPolicy: {{ .Values.metrics.image.imagePullPolicy }}
+          args:
+            - lidarr
+          env:
+            - name: PORT
+              value: {{ .Values.metrics.containerPort | default 9707 | quote }}
+            - name: URL
+              value: "http://{{ include "lidarr.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port | default 7878 }}"
+            {{- if .Values.config.sidecarContainer}}
+            - name: APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.secretName }}
+                  key: lidarr
+            {{- else }}
+            - name: APIKEY
+              value: "{{ .Values.metrics.apiKey }}"
+            {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.metrics.containerPort | default 9707 }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            failureThreshold: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            failureThreshold: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.metrics.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
