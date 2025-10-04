@@ -45,7 +45,7 @@ spec:
             - -c
             - |
               echo "Waiting for config files..."
-              while [ ! -f /config-radarr/config.xml ]; do
+              while [ ! -f /config/config.xml ]; do
                 echo "Waiting for all config files to be present..."
                 sleep 5
               done
@@ -53,7 +53,7 @@ spec:
               echo "All config files found. Starting sync loop."
 
               while true; do
-                RADARR_KEY=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /config-radarr/config.xml || echo "missing")
+                RADARR_KEY=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /config/config.xml || echo "missing")
                 kubectl create secret generic {{ .Values.config.secretName | quote }} \
                   --from-literal=radarr=$RADARR_KEY \
                   --dry-run=client -o yaml | kubectl apply -f -
@@ -62,7 +62,7 @@ spec:
               done
           volumeMounts:
             - name: config
-              mountPath: /config-radarr
+              mountPath: /config
               readonly: true
         - name: radarr
           image: {{ include "radarr.image" . }}
@@ -97,7 +97,7 @@ spec:
           {{- end }}
           volumeMounts:
             - name: config
-              mountPath: /config-radarr
+              mountPath: /config
             {{- if .Values.extraVolumes }}
             {{- range $storage := .Values.extraVolumes }}
             - name: {{ $storage.name }}
