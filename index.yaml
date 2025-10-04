@@ -75,6 +75,22 @@ entries:
   radarr:
   - apiVersion: v2
     appVersion: 25.3.20250926
+    created: "2025-10-04T12:39:59.469911449Z"
+    dependencies:
+    - name: common
+      repository: https://pascal0030.github.io/helm-charts/
+      version: 1.x.x
+    description: Radarr is a movie collection manager for Usenet and BitTorrent users.
+    digest: 879be2ce27d1aae5f4ec9829a24ff62cec4b3fd42ab685cfb958e2092ed0ddeb
+    name: radarr
+    sources:
+    - https://hub.docker.com/r/linuxserver/radarr
+    type: application
+    urls:
+    - radarr-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v2
+    appVersion: 25.3.20250926
     created: "2025-10-04T12:36:02.027621519Z"
     dependencies:
     - name: common
@@ -89,4 +105,4 @@ entries:
     urls:
     - radarr-0.0.1.tgz
     version: 0.0.1
-generated: "2025-10-04T12:36:02.027639363Z"
+generated: "2025-10-04T12:39:59.469931226Z"
