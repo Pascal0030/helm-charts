@@ -217,6 +217,49 @@
         }
       }
     },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "image": {
+          "type": "object",
+          "properties": {
+            "registry": { "type": "string" },
+            "repository": { "type": "string" },
+            "tag": { "type": "string" },
+            "imagePullPolicy": { "type": "string" }
+          }
+        },
+        "apiKey": { "type": "string" },
+        "serviceMonitor": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "interval": { "type": "string" },
+            "scrapeTimeout": { "type": "string" },
+            "labels": { "type": "object" },
+            "metricRelabelings": {
+              "type": "array",
+              "items": { "type": "object" }
+            },
+            "relabelings": {
+              "type": "array",
+              "items": { "type": "object" }
+            }
+          }
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "port": { "type": "integer" },
+            "interval": { "type": "string" },
+            "annotations": { "type": "object" }
+          }
+        },
+        "containerPort": { "type": "integer" },
+        "resources": { "type": "object" }
+      }
+    },
     "podAnnotations": { "type": "object" },
     "podLabels": { "type": "object" },
     "nodeSelector": { "type": "object" },

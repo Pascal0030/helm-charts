@@ -35,8 +35,8 @@ The following table lists the configurable parameters of the radarr chart and th
 | `image.repository`                | Radarr image repository                             | `linuxserver/radarr`   |
 | `image.tag`                       | Radarr image tag                                    | `latest`               |
 | `image.pullPolicy`                | Radarr image pull policy                            | `Always`               |
-| `config.sidecarContainer`         | Enable sidecar container for API key export         | `false`                |
-| `config.secretName`               | Secret name for API key                             | `media-app-api-keys`   |
+| `config.sidecarContainer`         | Enable sidecar container for API key export         | `true`                 |
+| `config.secretName`               | Secret name for API key                             | `radarr-api-key`       |
 | `service.type`                    | Kubernetes service type                             | `ClusterIP`            |
 | `service.port`                    | Service port                                        | `7878`                 |
 | `persistence.enabled`             | Enable data persistence                             | `true`                 |
@@ -55,6 +55,13 @@ The following table lists the configurable parameters of the radarr chart and th
 | `networkPolicy.enabled`           | Enable NetworkPolicy                                | `false`                |
 | `networkPolicy.destinations.nzbget.Port` | Allow traffic to NZBGet on this port         | `6789`                 |
 | `networkPolicy.destinations.nzbget.selectorLabels` | Selector labels for NZBGet destination | `{}`                   |
+| `metrics.enabled`                 | Enable the Radarr metrics exporter deployment       | `false`                |
+| `metrics.image.repository`        | Metrics exporter image repository                   | `onedr0p/exportarr`    |
+| `metrics.apiKey`                  | API key for Radarr metrics exporter                 | `""`                   |
+| `metrics.serviceMonitor.enabled`  | Create a ServiceMonitor for metrics exporter        | `false`                |
+| `metrics.service.port`            | Port the metrics exporter listens on                | `9707`                 |
+| `metrics.containerPort`           | Port the metrics exporter container listens on      | `9707`                 |
+| `metrics.resources`               | Resource requests/limits for metrics exporter       | `{}`                   |
 | `podAnnotations`                  | Additional pod annotations                          | `{}`                   |
 | `podLabels`                       | Additional pod labels                               | `{}`                   |
 | `nodeSelector`                    | Node selector                                       | `{}`                   |
