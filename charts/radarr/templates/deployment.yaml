@@ -184,6 +184,8 @@ spec:
         - name: radarr-exporter
           image: {{ .Values.metrics.image.registry }}/{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}
           imagePullPolicy: {{ .Values.metrics.image.imagePullPolicy }}
+          args:
+            - radarr
           env:
             - name: PORT
               value: {{ .Values.metrics.containerPort | default 9707 | quote }}
