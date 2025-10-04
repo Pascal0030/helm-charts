@@ -30,7 +30,7 @@ image:
 config:
   ## @param config.sidecarContainer Enable a sidecar container to export the api key to a secret
   sidecarContainer: false
-  secretName: media-app-api-keys
+  secretName: radarr-api-key
 
 ## @section radarr service parameters
 service:
