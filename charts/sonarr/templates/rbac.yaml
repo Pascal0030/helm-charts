@@ -1,0 +1,27 @@
+{{ if .Values.config.sidecarContainer }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "sonarr.fullname" . }}-secret-writer
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "update", "patch"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "sonarr.fullname" . }}-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "sonarr.fullname" . }}-secret-writer-binding
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "sonarr.fullname" . }}-sa
+roleRef:
+  kind: Role
+  name: {{ include "sonarr.fullname" . }}-secret-writer
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
