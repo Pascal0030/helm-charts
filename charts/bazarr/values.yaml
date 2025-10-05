@@ -30,18 +30,6 @@ image:
 auth:
   ## @param create service account for bazarr
   saEnabled: true
-  ## @param auth.authenticationMethod NZBGet (Forms or Basic)
-  authenticationMethod: Forms
-  ## @param auth.AuthenticationRequired Enable or disable authentication
-  AuthenticationRequired: Enabled
-  ## @param auth.apiKey NZBGet API key (4f2c460385004d6594414e3442j54c79)
-  apiKey: ""
-  ## @param auth.existingSecret Name of existing secret to use for NZBGet api key
-  existingSecret:
-    ## @param auth.existingSecret.secretName Name of the existing secret
-    secretName: ""
-    ## @param auth.existingSecret.secretKey Key in the existing secret that contains the api key
-    secretKey: ""
 
 ## @section bazarr configuration parameters
 config:
@@ -561,6 +549,15 @@ metrics:
     repository: onedr0p/exportarr
     tag: v2.3 # https://github.com/onedr0p/exportarr/pkgs/container/exportarr
     imagePullPolicy: IfNotPresent
+  auth:
+    ## @param auth.apiKey bazarr API key (4f2c460385004d6594414e3442j54c79)
+    apiKey: ""
+    ## @param auth.existingSecret Name of existing secret to use for NZBGet api key
+    existingSecret:
+      ## @param auth.existingSecret.secretName Name of the existing secret
+      secretName: ""
+      ## @param auth.existingSecret.secretKey Key in the existing secret that contains the api key
+      secretKey: ""
   serviceMonitor:
     ## @param metrics.service.enabled Create a ServiceMonitor for the bazarr metrics exporter
     enabled: false

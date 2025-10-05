@@ -2,7 +2,7 @@ apiVersion: v2
 name: bazarr
 description: bazarr is a TV series collection manager for Usenet and BitTorrent users.
 type: application
-version: 0.0.9
+version: 0.0.10
 appVersion: "25.3.20250926"
 
 sources:

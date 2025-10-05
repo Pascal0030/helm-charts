@@ -253,12 +253,12 @@ spec:
             {{- if and .Values.auth.apiKey (not .Values.auth.existingSecret) }}
             - name: APIKEY
               value: {{ .Values.auth.apiKey | quote }}
-            {{- else if and .Values.auth.existingSecret.secretName .Values.auth.existingSecret.secretKey }}
+            {{- else if and .Values.metrics.auth.existingSecret.secretName .Values.metrics.auth.existingSecret.secretKey }}
             - name: APIKEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.auth.existingSecret.secretName | quote }}
-                  key: {{ .Values.auth.existingSecret.secretKey | quote }}
+                  name: {{ .Values.metrics.auth.existingSecret.secretName | quote }}
+                  key: {{ .Values.metrics.auth.existingSecret.secretKey | quote }}
             {{- end }}
           ports:
             - name: metrics
