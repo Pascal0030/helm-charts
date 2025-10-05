@@ -56,11 +56,9 @@ config:
         engineVersion: v2
     data: []
     ## - secretKey: username
-    ##   remoteRef:
-    ##     key: ""
+    ##   key: ""
     ## - secretKey: password
-    ##   remoteRef:
-    ##     key: ""
+    ##   key: ""
   ## @param config.nzbgetconfig Custom configuration for NZBGet (nzbget.conf)
   nzbgetconfig: |
     MainDir=/config
