@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "basarr.fullname" . }}
+  name: {{ include "bazarr.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "basarr.labels" . | nindent 4 }}
+    {{- include "bazarr.labels" . | nindent 4 }}
   {{- with .Values.commonAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -16,11 +16,11 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      {{- include "basarr.selectorLabels" . | nindent 6 }}
+      {{- include "bazarr.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "basarr.labels" . | nindent 8 }}
+        {{- include "bazarr.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -29,7 +29,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-{{- with (include "basarr.imagePullSecrets" .) }}
+{{- with (include "bazarr.imagePullSecrets" .) }}
 {{- . | nindent 6 }}
 {{- end }}
       {{- if .Values.podSecurityContext.enabled }}
@@ -37,37 +37,37 @@ spec:
         fsGroup: {{ .Values.podSecurityContext.fsGroup }}
       {{- end }}
       {{- if .Values.config.saEnabled }}
-      serviceAccountName: {{ include "basarr.fullname" . }}-sa
+      serviceAccountName: {{ include "bazarr.fullname" . }}-sa
       {{- end }}
       containers:
-        - name: basarr
-          image: {{ include "basarr.image" . }}
+        - name: bazarr
+          image: {{ include "bazarr.image" . }}
           imagePullPolicy: {{ .Values.image.imagePullPolicy }}
           securityContext: {{- toYaml .Values.containerSecurityContext | nindent 12 }}
           {{- if .Values.env }}
           env:
             {{- toYaml .Values.env | nindent 12 }}
           {{- end }}
-            - name: basarr__LOG__LEVEL
+            - name: bazarr__LOG__LEVEL
               value: {{ .Values.config.logLevel | default "debug" | quote }}
-            - name: basarr__AUTH__METHOD
+            - name: bazarr__AUTH__METHOD
               value: {{ .Values.auth.authenticationMethod | default "Forms" | quote }}
-            - name: basarr__AUTH__AUTHENTICATIONREQUIRED
+            - name: bazarr__AUTH__AUTHENTICATIONREQUIRED
               value: {{ .Values.auth.AuthenticationRequired | default "Enabled" | quote }}
             {{- if and .Values.auth.apiKey (not .Values.auth.existingSecret) }}
-            - name: basarr__AUTH__APIKEY
+            - name: bazarr__AUTH__APIKEY
               value: {{ .Values.auth.apiKey | quote }}
             {{- else if and .Values.auth.existingSecret.secretName .Values.auth.existingSecret.secretKey }}
-            - name: basarr__AUTH__APIKEY
+            - name: bazarr__AUTH__APIKEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.auth.existingSecret.secretName | quote }}
                   key: {{ .Values.auth.existingSecret.secretKey | quote }}
             {{- end }}
-            - name: basarr__SERVER__PORT
+            - name: bazarr__SERVER__PORT
               value: {{ .Values.service.port | default 6767 | quote }}
           ports:
-            - name: basarr-http
+            - name: bazarr-http
               containerPort: {{ .Values.service.port | default 6767 }}
               protocol: TCP
           {{- if .Values.livenessProbe.enabled }}
@@ -108,7 +108,7 @@ spec:
         {{- if .Values.persistence.enabled }}
         - name: config
           persistentVolumeClaim:
-            claimName: {{ include "basarr.fullname" . }}-pvc
+            claimName: {{ include "bazarr.fullname" . }}-pvc
         {{- else }}
         - name: config
           emptyDir: {}
@@ -141,10 +141,10 @@ spec:
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: {{ include "basarr.fullname" . }}-exporter
+  name: {{ include "bazarr.fullname" . }}-exporter
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "basarr-exporter.labels" . | nindent 4 }}
+    {{- include "bazarr-exporter.labels" . | nindent 4 }}
   {{- with .Values.commonAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -154,11 +154,11 @@ spec:
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      {{- include "basarr-exporter.labels" . | nindent 6 }}
+      {{- include "bazarr-exporter.labels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "basarr-exporter.labels" . | nindent 8 }}
+        {{- include "bazarr-exporter.labels" . | nindent 8 }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "monitoring"
@@ -168,20 +168,20 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchLabels:
-                  app.kubernetes.io/name: {{ include "basarr.fullname" . }}
+                  app.kubernetes.io/name: {{ include "bazarr.fullname" . }}
                   app.kubernetes.io/instance: {{ .Release.Name }}
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: basarr-exporter
+        - name: bazarr-exporter
           image: {{ .Values.metrics.image.registry }}/{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}
           imagePullPolicy: {{ .Values.metrics.image.imagePullPolicy }}
           args:
-            - basarr
+            - bazarr
           env:
             - name: PORT
               value: {{ .Values.metrics.containerPort | default 9707 | quote }}
             - name: URL
-              value: "http://{{ include "basarr.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port | default 6767 }}"
+              value: "http://{{ include "bazarr.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port | default 6767 }}"
             {{- if and .Values.auth.apiKey (not .Values.auth.existingSecret) }}
             - name: APIKEY
               value: {{ .Values.auth.apiKey | quote }}

@@ -1,42 +1,42 @@
-# basarr Helm Chart
+# bazarr Helm Chart
 
-This Helm chart deploys [basarr](https://basarr.net/) on Kubernetes with flexible configuration options for development and production environments.
+This Helm chart deploys [bazarr](https://bazarr.net/) on Kubernetes with flexible configuration options for development and production environments.
 
 ---
 
 ## Installing the Chart
 
-To install the chart with the release name `my-basarr`:
+To install the chart with the release name `my-bazarr`:
 
 ```bash
-helm install basarr https://pascal0030.github.io/helm-charts/
+helm install bazarr https://pascal0030.github.io/helm-charts/
 ```
 
 To install with custom values:
 
 ```bash
-helm install basarr https://pascal0030.github.io/helm-charts/ -f my-values.yaml
+helm install bazarr https://pascal0030.github.io/helm-charts/ -f my-values.yaml
 ```
 
-To uninstall/delete the `basarr` deployment:
+To uninstall/delete the `bazarr` deployment:
 
 ```bash
-helm uninstall basarr
+helm uninstall bazarr
 ```
 
 ---
 
 ## Configuration
 
-The following table lists the configurable parameters of the basarr chart and their default values.
+The following table lists the configurable parameters of the bazarr chart and their default values.
 
 | Parameter                        | Description                                         | Default                |
 | --------------------------------- | --------------------------------------------------- | ---------------------- |
-| `image.repository`                | basarr image repository                             | `linuxserver/basarr`   |
-| `image.tag`                       | basarr image tag                                    | `latest`               |
-| `image.pullPolicy`                | basarr image pull policy                            | `Always`               |
+| `image.repository`                | bazarr image repository                             | `linuxserver/bazarr`   |
+| `image.tag`                       | bazarr image tag                                    | `latest`               |
+| `image.pullPolicy`                | bazarr image pull policy                            | `Always`               |
 | `config.sidecarContainer`         | Enable sidecar container for API key export         | `true`                 |
-| `config.secretName`               | Secret name for API key                             | `basarr-api-key`       |
+| `config.secretName`               | Secret name for API key                             | `bazarr-api-key`       |
 | `service.type`                    | Kubernetes service type                             | `ClusterIP`            |
 | `service.port`                    | Service port                                        | `7878`                 |
 | `persistence.enabled`             | Enable data persistence                             | `true`                 |
@@ -55,9 +55,9 @@ The following table lists the configurable parameters of the basarr chart and th
 | `networkPolicy.enabled`           | Enable NetworkPolicy                                | `false`                |
 | `networkPolicy.destinations.nzbget.Port` | Allow traffic to NZBGet on this port         | `6789`                 |
 | `networkPolicy.destinations.nzbget.selectorLabels` | Selector labels for NZBGet destination | `{}`                   |
-| `metrics.enabled`                 | Enable the basarr metrics exporter deployment       | `false`                |
+| `metrics.enabled`                 | Enable the bazarr metrics exporter deployment       | `false`                |
 | `metrics.image.repository`        | Metrics exporter image repository                   | `onedr0p/exportarr`    |
-| `metrics.apiKey`                  | API key for basarr metrics exporter                 | `""`                   |
+| `metrics.apiKey`                  | API key for bazarr metrics exporter                 | `""`                   |
 | `metrics.serviceMonitor.enabled`  | Create a ServiceMonitor for metrics exporter        | `false`                |
 | `metrics.service.port`            | Port the metrics exporter listens on                | `9707`                 |
 | `metrics.containerPort`           | Port the metrics exporter container listens on      | `9707`                 |
@@ -88,7 +88,7 @@ persistence:
 Install the chart:
 
 ```bash
-helm install my-basarr charts/basarr -f values.yaml
+helm install my-bazarr charts/bazarr -f values.yaml
 ```
 
 ---
@@ -99,7 +99,7 @@ helm install my-basarr charts/basarr -f values.yaml
 ingress:
   enabled: true
   hosts:
-    - host: basarr.local
+    - host: bazarr.local
       paths:
         - path: /
           pathType: Prefix
@@ -109,4 +109,4 @@ ingress:
 
 ## Links
 
-- [basarr Official Site](https://basarr.net/)
+- [bazarr Official Site](https://bazarr.net/)

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "title": "basarr Helm Chart Values",
+  "title": "bazarr Helm Chart Values",
   "type": "object",
   "properties": {
     "global": {

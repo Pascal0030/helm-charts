@@ -6,10 +6,10 @@ This file is kept for reference and potential future use cases.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "basarr.fullname" . }}-pvc
+  name: {{ include "bazarr.fullname" . }}-pvc
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "basarr.labels" . | nindent 4 }}
+    {{- include "bazarr.labels" . | nindent 4 }}
   {{- with .Values.persistence.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

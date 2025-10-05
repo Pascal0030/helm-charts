@@ -2,14 +2,14 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "basarr.fullname" . }}-exporter
+  name: {{ include "bazarr.fullname" . }}-exporter
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "basarr-exporter.labels" . | nindent 4 }}
+    {{- include "bazarr-exporter.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "basarr-exporter.labels" . | nindent 8 }}
+      {{- include "bazarr-exporter.labels" . | nindent 8 }}
   endpoints:
     - port: metrics
       interval: {{ .Values.metrics.service.interval | default "30s" }}

@@ -6,29 +6,29 @@ global:
   imagePullSecrets: []
 
 ## @section Common parameters
-## @param nameOverride String to partially override basarr.fullname
+## @param nameOverride String to partially override bazarr.fullname
 nameOverride: ""
-## @param fullnameOverride String to fully override basarr.fullname
+## @param fullnameOverride String to fully override bazarr.fullname
 fullnameOverride: ""
 ## @param commonLabels Labels to add to all deployed objects
 commonLabels: {}
 ## @param commonAnnotations Annotations to add to all deployed objects
 commonAnnotations: {}
 
-## @section basarr image parameters
+## @section bazarr image parameters
 image:
-  ## @param image.registry basarr image registry
+  ## @param image.registry bazarr image registry
   registry: docker.io
-  ## @param image.repository basarr image repository
-  repository: linuxserver/basarr
-  ## @param image.tag basarr image tag (immutable tags are recommended)
+  ## @param image.repository bazarr image repository
+  repository: linuxserver/bazarr
+  ## @param image.tag bazarr image tag (immutable tags are recommended)
   tag: "latest"
-  ## @param image.pullPolicy basarr image pull policy
+  ## @param image.pullPolicy bazarr image pull policy
   imagePullPolicy: Always
 
-## @section basarr Authentication parameters
+## @section bazarr Authentication parameters
 auth:
-  ## @param create service account for basarr
+  ## @param create service account for bazarr
   saEnabled: true
   ## @param auth.authenticationMethod NZBGet (Forms or Basic)
   authenticationMethod: Forms
@@ -43,34 +43,34 @@ auth:
     ## @param auth.existingSecret.secretKey Key in the existing secret that contains the api key
     secretKey: ""
 
-## @section basarr configuration parameters
+## @section bazarr configuration parameters
 config:
-  ## @param config.logLevel basarr log level (trace, debug, info, warn, error, fatal)
+  ## @param config.logLevel bazarr log level (trace, debug, info, warn, error, fatal)
   logLevel: debug
 
-## @section basarr service parameters
+## @section bazarr service parameters
 service:
-  ## @param service.type basarr service type
+  ## @param service.type bazarr service type
   type: ClusterIP
-  ## @param service.port basarr service port
+  ## @param service.port bazarr service port
   port: 6767
-  ## @param service.nodePort Node port for basarr service
+  ## @param service.nodePort Node port for bazarr service
   nodePort: ""
   ## @param service.clusterIP Static cluster IP or "None" for headless service
   clusterIP: ""
-  ## @param service.annotations Additional custom annotations for basarr service
+  ## @param service.annotations Additional custom annotations for bazarr service
   annotations: {}
 
 ## @section Persistence parameters
 persistence:
-  ## @param persistence.enabled Enable basarr data persistence using PVC
+  ## @param persistence.enabled Enable bazarr data persistence using PVC
   enabled: true
-  ## @param persistence.storageClass PVC Storage Class for basarr data volume
+  ## @param persistence.storageClass PVC Storage Class for bazarr data volume
   storageClass: ""
   ## @param persistence.accessModes PVC Access modes
   accessModes:
     - ReadWriteOnce
-  ## @param persistence.size PVC Storage Request for basarr data volume
+  ## @param persistence.size PVC Storage Request for bazarr data volume
   size: 2Gi
   ## @param persistence.annotations Additional custom annotations for the PVC
   annotations: {}
@@ -79,28 +79,28 @@ persistence:
 
 ## @section Pod Security Context
 podSecurityContext:
-  ## @param podSecurityContext.enabled Enable basarr pod Security Context
+  ## @param podSecurityContext.enabled Enable bazarr pod Security Context
   enabled: true
-  ## @param podSecurityContext.fsGroup Set basarr pod's Security Context fsGroup
+  ## @param podSecurityContext.fsGroup Set bazarr pod's Security Context fsGroup
   fsGroup: 1000
 
 ## @section Container Security Context
 containerSecurityContext:
-  ## @param containerSecurityContext.runAsUser Set basarr container's Security Context runAsUser
+  ## @param containerSecurityContext.runAsUser Set bazarr container's Security Context runAsUser
   runAsUser: 1000
-  ## @param containerSecurityContext.runAsGroup Set basarr container's Security Context runAsGroup
+  ## @param containerSecurityContext.runAsGroup Set bazarr container's Security Context runAsGroup
   runAsGroup: 1000
-  ## @param containerSecurityContext.runAsNonRoot Set basarr container's Security Context runAsNonRoot
+  ## @param containerSecurityContext.runAsNonRoot Set bazarr container's Security Context runAsNonRoot
   runAsNonRoot: true
-  ## @param containerSecurityContext.allowPrivilegeEscalation Set basarr container's privilege escalation
+  ## @param containerSecurityContext.allowPrivilegeEscalation Set bazarr container's privilege escalation
   allowPrivilegeEscalation: true
 
 ## @section Resources parameters
 resources: {}
-  ## @param resources.limits The resources limits for the basarr containers
+  ## @param resources.limits The resources limits for the bazarr containers
   ## limits:
   ##   memory: 300Mi
-  ## @param resources.requests The requested resources for the basarr containers
+  ## @param resources.requests The requested resources for the bazarr containers
   ## requests:
   ##   memory: 300Mi
   ##   cpu: 100m
@@ -127,7 +127,7 @@ nfsVolumes: []
 ##      server: 192.168.x.x
 ##      path: /downloads
 
-## @section basarr container's liveness probe parameters
+## @section bazarr container's liveness probe parameters
 livenessProbe:
   ## @param livenessProbe.enabled Enable livenessProbe on MariaDB containers
   enabled: true
@@ -142,7 +142,7 @@ livenessProbe:
   ## @param livenessProbe.successThreshold Success threshold for livenessProbe
   successThreshold: 1
 
-## @section basarr container's readiness probe parameters
+## @section bazarr container's readiness probe parameters
 readinessProbe:
   ## @param readinessProbe.enabled Enable readinessProbe on MariaDB containers
   enabled: true
@@ -157,7 +157,7 @@ readinessProbe:
   ## @param readinessProbe.successThreshold Success threshold for readinessProbe
   successThreshold: 1
 
-## @section basarr container's startup probe parameters
+## @section bazarr container's startup probe parameters
 startupProbe:
   ## @param startupProbe.enabled Enable startupProbe on MariaDB containers
   enabled: false
@@ -174,16 +174,16 @@ startupProbe:
 
 ## @section Ingress parameters
 ingress:
-  ## @param ingress.enabled Enable ingress record generation for basarr
+  ## @param ingress.enabled Enable ingress record generation for bazarr
   enabled: false
   ## @param ingress.className IngressClass that will be used to implement the Ingress (Kubernetes 1.18+)
   className: ""
   ## @param ingress.annotations Additional annotations for the Ingress resource
   annotations:
-    kubernetes.io/hostname: basarr.local
+    kubernetes.io/hostname: bazarr.local
   ## @param ingress.hosts An array with hosts and paths
   hosts:
-    - host: basarr.local
+    - host: bazarr.local
       paths:
         - path: /
           pathType: Prefix
@@ -209,16 +209,16 @@ networkPolicy:
         app.kubernetes.io/instance: nzbget
 
 metrics:
-  ## @param metrics.enabled Enable the basarr metrics exporter deployment
+  ## @param metrics.enabled Enable the bazarr metrics exporter deployment
   enabled: false
   image:
-    ## @param metrics.image Docker image for the basarr metrics exporter
+    ## @param metrics.image Docker image for the bazarr metrics exporter
     registry: ghcr.io
     repository: onedr0p/exportarr
     tag: v2.3 # https://github.com/onedr0p/exportarr/pkgs/container/exportarr
     imagePullPolicy: IfNotPresent
   serviceMonitor:
-    ## @param metrics.service.enabled Create a ServiceMonitor for the basarr metrics exporter
+    ## @param metrics.service.enabled Create a ServiceMonitor for the bazarr metrics exporter
     enabled: false
     ## @param metrics.service.port Port the ServiceMonitor should scrape
     interval: 4m
@@ -231,18 +231,18 @@ metrics:
     ## @param metrics.service.relabelings Relabelings for the ServiceMonitor
     relabelings: []
   service:
-    ## @param metrics.service.port Port the basarr metrics exporter listens on
+    ## @param metrics.service.port Port the bazarr metrics exporter listens on
     port: 9707
-    ## @param metrics.service.interval Scrape interval for the basarr metrics exporter
+    ## @param metrics.service.interval Scrape interval for the bazarr metrics exporter
     annotations: {}
-  ## @param metrics.containerPort Port the basarr metrics exporter container listens on
+  ## @param metrics.containerPort Port the bazarr metrics exporter container listens on
   containerPort: 9707
   resources: {}
-    ## @param metrics.resources.limits The resources limits for the basarr metrics exporter container
+    ## @param metrics.resources.limits The resources limits for the bazarr metrics exporter container
     ## limits:
     ##   cpu: 500m
     ##   memory: 256Mi
-    ## @param metrics.resources.requests The requested resources for the basarr metrics exporter container
+    ## @param metrics.resources.requests The requested resources for the bazarr metrics exporter container
     ## requests:
     ##   memory: 64Mi
     ##   cpu: 100m
