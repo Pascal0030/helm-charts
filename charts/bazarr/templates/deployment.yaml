@@ -217,6 +217,10 @@ spec:
           env:
             - name: PORT
               value: {{ .Values.metrics.containerPort | default 9707 | quote }}
+            - name: PUID
+              value: {{ .Values.containerSecurityContext.runAsUser | default 1000 | quote }}
+            - name: PGID
+              value: {{ .Values.containerSecurityContext.runAsGroup | default 1000 | quote }}
             - name: URL
               value: "http://{{ include "bazarr.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port | default 6767 }}"
             {{- if and .Values.auth.apiKey (not .Values.auth.existingSecret) }}
