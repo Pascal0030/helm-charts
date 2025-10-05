@@ -26,11 +26,27 @@ image:
   ## @param image.pullPolicy lidarr image pull policy
   imagePullPolicy: Always
 
-## @section lidarr configuration parameters
+## @section Radarr Authentication parameters
+auth:
+  ## @param create service account for radarr
+  saEnabled: true
+  ## @param auth.authenticationMethod NZBGet (Forms or Basic)
+  authenticationMethod: Forms
+  ## @param auth.AuthenticationRequired Enable or disable authentication
+  AuthenticationRequired: Enabled
+  ## @param auth.apiKey NZBGet API key (4f2c460385004d6594414e3442j54c79)
+  apiKey: ""
+  ## @param auth.existingSecret Name of existing secret to use for NZBGet api key
+  existingSecret:
+    ## @param auth.existingSecret.secretName Name of the existing secret
+    secretName: ""
+    ## @param auth.existingSecret.secretKey Key in the existing secret that contains the api key
+    secretKey: ""
+
+## @section radarr configuration parameters
 config:
-  ## @param config.sidecarContainer Enable a sidecar container to export the api key to a secret
-  sidecarContainer: true
-  secretName: lidarr-api-key
+  ## @param config.logLevel radarr log level (trace, debug, info, warn, error, fatal)
+  logLevel: debug
 
 ## @section lidarr service parameters
 service:
@@ -201,8 +217,6 @@ metrics:
     repository: onedr0p/exportarr
     tag: v2.3 # https://github.com/onedr0p/exportarr/pkgs/container/exportarr
     imagePullPolicy: IfNotPresent
-  ## @param metrics.apiKey API key for lidarr, only used if config.sidecarContainer is false
-  apiKey: ""
   serviceMonitor:
     ## @param metrics.service.enabled Create a ServiceMonitor for the lidarr metrics exporter
     enabled: false

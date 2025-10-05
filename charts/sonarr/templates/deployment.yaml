@@ -36,7 +36,7 @@ spec:
       securityContext:
         fsGroup: {{ .Values.podSecurityContext.fsGroup }}
       {{- end }}
-      {{- if .Values.config.sidecarContainer }}
+      {{- if .Values.config.saEnabled }}
       serviceAccountName: {{ include "sonarr.fullname" . }}-sa
       {{- end }}
       containers:
@@ -48,6 +48,24 @@ spec:
           env:
             {{- toYaml .Values.env | nindent 12 }}
           {{- end }}
+            - name: SONARR__LOG__LEVEL
+              value: {{ .Values.config.logLevel | default "debug" | quote }}
+            - name: SONARR__AUTH__METHOD
+              value: {{ .Values.auth.authenticationMethod | default "Forms" | quote }}
+            - name: SONARR__AUTH__AUTHENTICATIONREQUIRED
+              value: {{ .Values.auth.AuthenticationRequired | default "Enabled" | quote }}
+            {{- if and .Values.auth.apiKey (not .Values.auth.existingSecret) }}
+            - name: SONARR__AUTH__APIKEY
+              value: {{ .Values.auth.apiKey | quote }}
+            {{- else if and .Values.auth.existingSecret.secretName .Values.auth.existingSecret.secretKey }}
+            - name: SONARR__AUTH__APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingSecret.secretName | quote }}
+                  key: {{ .Values.auth.existingSecret.secretKey | quote }}
+            {{- end }}
+            - name: SONARR__SERVER__PORT
+              value: {{ .Values.service.port | default 8989 | quote }}
           ports:
             - name: sonarr-http
               containerPort: {{ .Values.service.port | default 8989 }}
@@ -86,32 +104,6 @@ spec:
               mountPath: {{ $nfsstorage.mountPath }}
             {{- end }}
             {{- end }}
-        - name: extract-apikey
-          image: mcp/kubectl-mcp-server:latest
-          command:
-            - /bin/sh
-            - -c
-            - |
-              echo "Waiting for config files..."
-              while [ ! -f /config/config.xml ]; do
-                echo "Waiting for all config files to be present..."
-                sleep 5
-              done
-
-              echo "All config files found. Starting sync loop."
-
-              while true; do
-                SONARR_KEY=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /config/config.xml || echo "missing")
-                kubectl create secret generic {{ .Values.config.secretName | quote }} \
-                  --from-literal=sonarr=$SONARR_KEY \
-                  --dry-run=client -o yaml | kubectl apply -f -
-
-                sleep 3600 # 1 hour
-              done
-          volumeMounts:
-            - name: config
-              mountPath: /config
-              readonly: true
       volumes:
         {{- if .Values.persistence.enabled }}
         - name: config
@@ -190,15 +182,15 @@ spec:
               value: {{ .Values.metrics.containerPort | default 9707 | quote }}
             - name: URL
               value: "http://{{ include "sonarr.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port | default 7878 }}"
-            {{- if .Values.config.sidecarContainer}}
+            {{- if and .Values.auth.apiKey (not .Values.auth.existingSecret) }}
+            - name: APIKEY
+              value: {{ .Values.auth.apiKey | quote }}
+            {{- else if and .Values.auth.existingSecret.secretName .Values.auth.existingSecret.secretKey }}
             - name: APIKEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.config.secretName }}
-                  key: sonarr
-            {{- else }}
-            - name: APIKEY
-              value: "{{ .Values.metrics.apiKey }}"
+                  name: {{ .Values.auth.existingSecret.secretName | quote }}
+                  key: {{ .Values.auth.existingSecret.secretKey | quote }}
             {{- end }}
           ports:
             - name: metrics
