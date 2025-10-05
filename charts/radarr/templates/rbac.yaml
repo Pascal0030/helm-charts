@@ -1,4 +1,4 @@
-{{ - if .Values.auth.saEnabled }}
+{{- if .Values.auth.saEnabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
