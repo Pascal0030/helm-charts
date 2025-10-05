@@ -63,6 +63,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.auth.existingSecret.secretName | quote }}
                   key: {{ .Values.auth.existingSecret.secretKey | quote }}
+            {{- end }}
             - name: RADARR__SERVER__PORT
               value: {{ .Values.service.port | default 7878 | quote }}
           ports:
@@ -190,6 +191,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.auth.existingSecret.secretName | quote }}
                   key: {{ .Values.auth.existingSecret.secretKey | quote }}
+            {{- end }}
           ports:
             - name: metrics
               containerPort: {{ .Values.metrics.containerPort | default 9707 }}
