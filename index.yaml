@@ -21,6 +21,23 @@ entries:
   bazarr:
   - apiVersion: v2
     appVersion: 25.3.20250926
+    created: "2025-10-05T09:13:05.316193497Z"
+    dependencies:
+    - name: common
+      repository: https://pascal0030.github.io/helm-charts/
+      version: 1.x.x
+    description: bazarr is a TV series collection manager for Usenet and BitTorrent
+      users.
+    digest: 4bace709dbc5b2ec46c6169b18cbf204e12712623c6b654d5c8683b1e358f3ba
+    name: bazarr
+    sources:
+    - https://hub.docker.com/r/linuxserver/bazarr
+    type: application
+    urls:
+    - bazarr-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v2
+    appVersion: 25.3.20250926
     created: "2025-10-05T09:12:30.169579997Z"
     dependencies:
     - name: common
@@ -433,4 +450,4 @@ entries:
     urls:
     - sonarr-0.0.1.tgz
     version: 0.0.1
-generated: "2025-10-05T09:12:30.169633659Z"
+generated: "2025-10-05T09:13:05.316255372Z"
