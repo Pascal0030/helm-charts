@@ -1,0 +1,6 @@
+{{- if .Values.auth.saEnabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "basarr.fullname" . }}-sa
+{{- end }}
