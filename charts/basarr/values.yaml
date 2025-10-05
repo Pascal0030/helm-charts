@@ -126,6 +126,11 @@ nfsVolumes: []
 ##    nfs:
 ##      server: 192.168.x.x
 ##      path: /downloads
+extraConfigMaps: []
+##  - name: extraConfigMap
+##    mountPath: /mnt/tmp
+##    subPath: example.conf
+##    configMapName: pvc-001
 
 ## @section bazarr container's liveness probe parameters
 livenessProbe:
