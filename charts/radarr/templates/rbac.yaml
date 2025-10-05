@@ -1,27 +1,6 @@
-{{ if .Values.config.sidecarContainer }}
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: {{ include "radarr.fullname" . }}-secret-writer
-rules:
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get", "create", "update", "patch"]
----
+{{ - if .Values.auth.saEnabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ include "radarr.fullname" . }}-sa
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: {{ include "radarr.fullname" . }}-secret-writer-binding
-subjects:
-  - kind: ServiceAccount
-    name: {{ include "radarr.fullname" . }}-sa
-roleRef:
-  kind: Role
-  name: {{ include "radarr.fullname" . }}-secret-writer
-  apiGroup: rbac.authorization.k8s.io
 {{- end }}

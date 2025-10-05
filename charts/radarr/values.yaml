@@ -26,11 +26,27 @@ image:
   ## @param image.pullPolicy radarr image pull policy
   imagePullPolicy: Always
 
+## @section NZBGet Authentication parameters
+auth:
+  ## @param create service account for radarr
+  saEnabled: true
+  ## @param auth.authenticationMethod NZBGet (Forms or Basic)
+  authenticationMethod: Forms
+  ## @param auth.AuthenticationRequired Enable or disable authentication
+  AuthenticationRequired: Enabled
+  ## @param auth.apiKey NZBGet API key (4f2c460385004d6594414e3442j54c79)
+  apiKey: ""
+  ## @param auth.existingSecret Name of existing secret to use for NZBGet api key
+  existingSecret:
+    ## @param auth.existingSecret.secretName Name of the existing secret
+    secretName: ""
+    ## @param auth.existingSecret.secretKey Key in the existing secret that contains the api key
+    secretKey: ""
+
 ## @section radarr configuration parameters
 config:
-  ## @param config.sidecarContainer Enable a sidecar container to export the api key to a secret
-  sidecarContainer: true
-  secretName: radarr-api-key
+  ## @param config.logLevel radarr log level (trace, debug, info, warn, error, fatal)
+  logLevel: debug
 
 ## @section radarr service parameters
 service:
