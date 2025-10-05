@@ -41,9 +41,9 @@ spec:
           image: busybox
           env:
             - name: PUID
-              value: {{ .Values.podSecurityContext.fsGroup | quote }}
+              value: {{ .Values.containerSecurityContext.runAsUser | default 1000 | quote }}
             - name: PGID
-              value: {{ .Values.podSecurityContext.fsGroup | quote }}
+              value: {{ .Values.containerSecurityContext.runAsGroup | default 1000 | quote }}
           command:
             - sh
             - -c
