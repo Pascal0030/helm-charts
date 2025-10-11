@@ -205,6 +205,22 @@ entries:
   lidarr:
   - apiVersion: v2
     appVersion: 25.3.20250926
+    created: "2025-10-11T12:29:38.273755662Z"
+    dependencies:
+    - name: common
+      repository: https://pascal0030.github.io/helm-charts/
+      version: 1.x.x
+    description: Lidarr is a music collection manager for Usenet and BitTorrent users.
+    digest: a938a2f6972e4f49e0bbebd50bd2b34bb9ffa0e01a5144b79b3b4f7eeb80a1d7
+    name: lidarr
+    sources:
+    - https://hub.docker.com/r/linuxserver/lidarr
+    type: application
+    urls:
+    - lidarr-0.0.3.tgz
+    version: 0.0.3
+  - apiVersion: v2
+    appVersion: 25.3.20250926
     created: "2025-10-05T08:41:59.974403502Z"
     dependencies:
     - name: common
@@ -295,6 +311,22 @@ entries:
     - nzbget-0.0.1.tgz
     version: 0.0.1
   radarr:
+  - apiVersion: v2
+    appVersion: 25.3.20250926
+    created: "2025-10-11T12:29:38.450045792Z"
+    dependencies:
+    - name: common
+      repository: https://pascal0030.github.io/helm-charts/
+      version: 1.x.x
+    description: Radarr is a movie collection manager for Usenet and BitTorrent users.
+    digest: dcd0df39bd76d6306cda858a22cf73ac8f6509ab5a07a6351a508c4934a459c2
+    name: radarr
+    sources:
+    - https://hub.docker.com/r/linuxserver/radarr
+    type: application
+    urls:
+    - radarr-0.0.17.tgz
+    version: 0.0.17
   - apiVersion: v2
     appVersion: 25.3.20250926
     created: "2025-10-05T08:21:49.350318313Z"
@@ -554,6 +586,23 @@ entries:
   sonarr:
   - apiVersion: v2
     appVersion: 25.3.20250926
+    created: "2025-10-11T12:29:38.588836883Z"
+    dependencies:
+    - name: common
+      repository: https://pascal0030.github.io/helm-charts/
+      version: 1.x.x
+    description: Sonarr is a TV series collection manager for Usenet and BitTorrent
+      users.
+    digest: af2f6aedd1c00a7208fdef4ebcc8f278e3eace731fbbf8b0a3c19345e1421ab2
+    name: sonarr
+    sources:
+    - https://hub.docker.com/r/linuxserver/sonarr
+    type: application
+    urls:
+    - sonarr-0.0.3.tgz
+    version: 0.0.3
+  - apiVersion: v2
+    appVersion: 25.3.20250926
     created: "2025-10-05T08:42:00.254309589Z"
     dependencies:
     - name: common
@@ -586,4 +635,4 @@ entries:
     urls:
     - sonarr-0.0.1.tgz
     version: 0.0.1
-generated: "2025-10-05T15:49:33.01689848Z"
+generated: "2025-10-11T12:29:38.589010437Z"
