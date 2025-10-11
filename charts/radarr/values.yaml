@@ -30,7 +30,7 @@ image:
 auth:
   ## @param create service account for radarr
   saEnabled: true
-  ## @param auth.authenticationMethod NZBGet (Forms or Basic)
+  ## @param auth.authenticationMethod NZBGet (Forms or External) (Use External to reset the Passwort or for first start)
   authenticationMethod: Forms
   ## @param auth.AuthenticationRequired Enable or disable authentication
   AuthenticationRequired: Enabled

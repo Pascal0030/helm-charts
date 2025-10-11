@@ -163,14 +163,6 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "monitoring"
     spec:
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchLabels:
-                  app.kubernetes.io/name: {{ include "lidarr.fullname" . }}
-                  app.kubernetes.io/instance: {{ .Release.Name }}
-              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: lidarr-exporter
           image: {{ .Values.metrics.image.registry }}/{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}
