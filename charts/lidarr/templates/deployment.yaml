@@ -52,7 +52,7 @@ spec:
               value: {{ .Values.config.logLevel | default "debug" | quote }}
             - name: LIDARR__AUTH__METHOD
               value: {{ .Values.auth.authenticationMethod | default "Forms" | quote }}
-            - name: LIDARR__AUTH__AUTHENTICATIONREQUIRED
+            - name: LIDARR__AUTH__REQUIRED
               value: {{ .Values.auth.AuthenticationRequired | default "Enabled" | quote }}
             {{- if and .Values.auth.apiKey (not .Values.auth.existingSecret) }}
             - name: LIDARR__AUTH__APIKEY
