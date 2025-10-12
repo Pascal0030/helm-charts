@@ -53,6 +53,7 @@ spec:
             - -c
             - >
                 echo "PUID=$PUID, PGID=$PGID" &&
+                mkdir -p /config/config &&
                 cp -v /temp/config.yaml /config/config/config.yaml &&
                 chown "${PUID}:${PGID}" /config/config/config.yaml &&
                 chmod 664 /config/config/config.yaml &&
