@@ -29,6 +29,14 @@ Common labels
 {{- end }}
 
 {{/*
+Exporter Common labels
+*/}}
+{{- define "lidarr-exporter.labels" -}}
+app.kubernetes.io/name: {{ include "lidarr.fullname" . }}-exporter
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
 Selector labels
 */}}
 {{- define "nzbget.selectorLabels" -}}
