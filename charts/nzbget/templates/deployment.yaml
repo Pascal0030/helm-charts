@@ -223,8 +223,6 @@ spec:
         - name: nzbget-exporter
           image: {{ .Values.metrics.image.registry }}/{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}
           imagePullPolicy: {{ .Values.metrics.image.imagePullPolicy }}
-          args:
-            - nzbget
           env:
             - name: NZBGET_HOST
               value: "http://{{ include "nzbget.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port | default 6789 }}"
