@@ -228,7 +228,6 @@ spec:
           env:
             - name: NZBGET_HOST
               value: "http://{{ include "nzbget.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port | default 6789 }}"
-            {{- if and .Values.auth.apiKey (not .Values.auth.existingSecret) }}
             {{- if .Values.auth.existingSecret }}
             - name: NZBGET_USERNAME
               valueFrom:
