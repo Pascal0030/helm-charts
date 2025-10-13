@@ -250,13 +250,13 @@ spec:
               containerPort: {{ .Values.metrics.containerPort | default 9707 }}
           livenessProbe:
             httpGet:
-              path: /healthz
+              path: /metrics
               port: metrics
             failureThreshold: 5
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /healthz
+              path: /metrics
               port: metrics
             failureThreshold: 5
             periodSeconds: 10
