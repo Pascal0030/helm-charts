@@ -31,8 +31,8 @@ Common labels
 {{/*
 Exporter Common labels
 */}}
-{{- define "lidarr-exporter.labels" -}}
-app.kubernetes.io/name: {{ include "lidarr.fullname" . }}-exporter
+{{- define "nzbget-exporter.labels" -}}
+app.kubernetes.io/name: {{ include "nzbget.fullname" . }}-exporter
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
