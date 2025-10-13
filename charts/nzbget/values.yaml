@@ -352,6 +352,45 @@ networkPolicy:
   ## @param networkPolicy.ingressNSPodMatchLabels Pod labels to match to allow traffic from other namespaces
   ingressNSPodMatchLabels: {}
 
+metrics:
+  ## @param metrics.enabled Enable the lidarr metrics exporter deployment
+  enabled: false
+  image:
+    ## @param metrics.image Docker image for the lidarr metrics exporter
+    registry: ghcr.io
+    repository: frebib/nzbget-exporter
+    tag: latest # https://github.com/frebib/nzbget-exporter/pkgs/container/nzbget-exporter
+    imagePullPolicy: IfNotPresent
+  serviceMonitor:
+    ## @param metrics.service.enabled Create a ServiceMonitor for the lidarr metrics exporter
+    enabled: false
+    ## @param metrics.service.port Port the ServiceMonitor should scrape
+    interval: 4m
+    ## @param metrics.service.scrapeTimeout Scrape timeout for the ServiceMonitor
+    scrapeTimeout: 90s
+    ## @param metrics.service.labels Additional labels for the ServiceMonitor
+    labels: {}
+    ## @param metrics.service.metricRelabelings Metric relabelings for the ServiceMonitor
+    metricRelabelings: []
+    ## @param metrics.service.relabelings Relabelings for the ServiceMonitor
+    relabelings: []
+  service:
+    ## @param metrics.service.port Port the lidarr metrics exporter listens on
+    port: 9452
+    ## @param metrics.service.interval Scrape interval for the lidarr metrics exporter
+    annotations: {}
+  ## @param metrics.containerPort Port the lidarr metrics exporter container listens on
+  containerPort: 9452
+  resources: {}
+    ## @param metrics.resources.limits The resources limits for the lidarr metrics exporter container
+    ## limits:
+    ##   cpu: 500m
+    ##   memory: 256Mi
+    ## @param metrics.resources.requests The requested resources for the lidarr metrics exporter container
+    ## requests:
+    ##   memory: 64Mi
+    ##   cpu: 100m
+
 ## @section Pod configuration
 podAnnotations: {}
 podLabels: {}

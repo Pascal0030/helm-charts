@@ -25,3 +25,26 @@ spec:
       {{- end }}
   selector:
     {{- include "nzbget.selectorLabels" . | nindent 4 }}
+---
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nzbget.fullname" . }}-exporter
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nzbget-exporter.labels" . | nindent 4 }}
+  {{- $annotations := merge .Values.metrics.service.annotations .Values.commonAnnotations }}
+  {{- with $annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    - port: {{ .Values.metrics.service.port }}
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+  selector:
+    {{- include "nzbget-exporter.labels" . | nindent 4 }}
+{{- end }}
