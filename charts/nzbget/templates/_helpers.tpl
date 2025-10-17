@@ -29,14 +29,6 @@ Common labels
 {{- end }}
 
 {{/*
-Exporter Common labels
-*/}}
-{{- define "nzbget-exporter.labels" -}}
-app.kubernetes.io/name: {{ include "nzbget.fullname" . }}-exporter
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
 Selector labels
 */}}
 {{- define "nzbget.selectorLabels" -}}

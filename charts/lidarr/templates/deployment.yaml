@@ -104,6 +104,50 @@ spec:
               mountPath: {{ $nfsstorage.mountPath }}
             {{- end }}
             {{- end }}
+        {{- if .Values.metrics.enabled }}
+        - name: metrics
+          image: {{ .Values.metrics.image.registry }}/{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}
+          imagePullPolicy: {{ .Values.metrics.image.imagePullPolicy }}
+          args:
+            - lidarr
+            {{- range .Values.metrics.extraArgs }}
+            {{- if not (hasPrefix "--" .) }}
+            - {{ . }}
+            {{- end }}
+            {{- end }}
+          env:
+            - name: PORT
+              value: {{ .Values.metrics.containerPort | default 9707 | quote }}
+            - name: URL
+              value: "http://localhost:{{ .Values.service.port | default 7878 }}"
+            {{- if and .Values.auth.apiKey (not .Values.auth.existingSecret) }}
+            - name: APIKEY
+              value: {{ .Values.auth.apiKey | quote }}
+            {{- else if and .Values.auth.existingSecret.secretName .Values.auth.existingSecret.secretKey }}
+            - name: APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingSecret.secretName | quote }}
+                  key: {{ .Values.auth.existingSecret.secretKey | quote }}
+            {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.metrics.containerPort | default 9707 }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            failureThreshold: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            failureThreshold: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.metrics.resources | nindent 12 }}
+        {{- end }}
       volumes:
         {{- if .Values.persistence.enabled }}
         - name: config
@@ -136,81 +180,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
----
-{{- if .Values.metrics.enabled }}
-kind: Deployment
-apiVersion: apps/v1
-metadata:
-  name: {{ include "lidarr.fullname" . }}-exporter
-  namespace: {{ .Release.Namespace }}
-  labels:
-    {{- include "lidarr-exporter.labels" . | nindent 4 }}
-  {{- with .Values.commonAnnotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-spec:
-  replicas: 1
-  revisionHistoryLimit: 1
-  selector:
-    matchLabels:
-      {{- include "lidarr-exporter.labels" . | nindent 6 }}
-  template:
-    metadata:
-      labels:
-        {{- include "lidarr-exporter.labels" . | nindent 8 }}
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "monitoring"
-    spec:
-      containers:
-        - name: lidarr-exporter
-          image: {{ .Values.metrics.image.registry }}/{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}
-          imagePullPolicy: {{ .Values.metrics.image.imagePullPolicy }}
-          args:
-            - lidarr
-          env:
-            - name: PORT
-              value: {{ .Values.metrics.containerPort | default 9707 | quote }}
-            - name: URL
-              value: "http://{{ include "lidarr.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port | default 7878 }}"
-            {{- if and .Values.auth.apiKey (not .Values.auth.existingSecret) }}
-            - name: APIKEY
-              value: {{ .Values.auth.apiKey | quote }}
-            {{- else if and .Values.auth.existingSecret.secretName .Values.auth.existingSecret.secretKey }}
-            - name: APIKEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.auth.existingSecret.secretName | quote }}
-                  key: {{ .Values.auth.existingSecret.secretKey | quote }}
-            {{- end }}
-          ports:
-            - name: metrics
-              containerPort: {{ .Values.metrics.containerPort | default 9707 }}
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: metrics
-            failureThreshold: 5
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: metrics
-            failureThreshold: 5
-            periodSeconds: 10
-          resources:
-            {{- toYaml .Values.metrics.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-{{- end }}

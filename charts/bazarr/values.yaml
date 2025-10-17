@@ -543,12 +543,18 @@ networkPolicy:
 metrics:
   ## @param metrics.enabled Enable the bazarr metrics exporter deployment
   enabled: false
+  ## @param metrics.image.registry Redis exporter image registry
+  ## @param metrics.image.repository Redis exporter image repository
+  ## @param metrics.image.tag Redis exporter image tag
+  ## @param metrics.image.pullPolicy Redis exporter image pull policy
   image:
     ## @param metrics.image Docker image for the bazarr metrics exporter
     registry: ghcr.io
     repository: onedr0p/exportarr
     tag: v2.3 # https://github.com/onedr0p/exportarr/pkgs/container/exportarr
     imagePullPolicy: IfNotPresent
+  ## @param metrics.containerPort Port where the metrics exporter will listen on
+  containerPort: 9707
   auth:
     ## @param auth.apiKey bazarr API key (4f2c460385004d6594414e3442j54c79)
     apiKey: ""
@@ -558,35 +564,56 @@ metrics:
       secretName: ""
       ## @param auth.existingSecret.secretKey Key in the existing secret that contains the api key
       secretKey: ""
-  serviceMonitor:
-    ## @param metrics.service.enabled Create a ServiceMonitor for the bazarr metrics exporter
-    enabled: false
-    ## @param metrics.service.port Port the ServiceMonitor should scrape
-    interval: 4m
-    ## @param metrics.service.scrapeTimeout Scrape timeout for the ServiceMonitor
-    scrapeTimeout: 90s
-    ## @param metrics.service.labels Additional labels for the ServiceMonitor
-    labels: {}
-    ## @param metrics.service.metricRelabelings Metric relabelings for the ServiceMonitor
-    metricRelabelings: []
-    ## @param metrics.service.relabelings Relabelings for the ServiceMonitor
-    relabelings: []
+  ## @param metrics.resources Resource limits and requests for metrics container
+  resources:
+    limits:
+      memory: 64Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  ## @param metrics.extraArgs Extra arguments for redis exporter, for example:
+  ## extraArgs:
+  ##   - --args
+  ##   - --args
+  extraArgs: []
+  ## Metrics service configuration
   service:
-    ## @param metrics.service.port Port the bazarr metrics exporter listens on
+    ## @param metrics.service.type Metrics service type
+    type: ClusterIP
+    ## @param metrics.service.port Metrics service port
     port: 9707
-    ## @param metrics.service.interval Scrape interval for the bazarr metrics exporter
+    ## @param metrics.service.annotations Additional custom annotations for Metrics service
     annotations: {}
-  ## @param metrics.containerPort Port the bazarr metrics exporter container listens on
-  containerPort: 9707
-  resources: {}
-    ## @param metrics.resources.limits The resources limits for the bazarr metrics exporter container
-    ## limits:
-    ##   cpu: 500m
-    ##   memory: 256Mi
-    ## @param metrics.resources.requests The requested resources for the bazarr metrics exporter container
-    ## requests:
-    ##   memory: 64Mi
-    ##   cpu: 100m
+    ## @param metrics.service.loadBalancerIP Load balancer IP if metrics service type is `LoadBalancer`
+    loadBalancerIP: ""
+    ## @param metrics.service.loadBalancerSourceRanges Addresses that are allowed when metrics service is LoadBalancer
+    loadBalancerSourceRanges: []
+    ## @param metrics.service.clusterIP Static clusterIP or None for headless services when metrics service type is ClusterIP
+    clusterIP: ""
+    ## @param metrics.service.nodePort Specify the nodePort value for the LoadBalancer and NodePort service types
+    nodePort: ""
+  ## Prometheus ServiceMonitor configuration
+  serviceMonitor:
+    ## @param metrics.serviceMonitor.enabled Create ServiceMonitor resource(s) for scraping metrics using PrometheusOperator
+    enabled: false
+    ## @param metrics.serviceMonitor.namespace Namespace in which to create ServiceMonitor resource(s)
+    namespace: ""
+    ## @param metrics.serviceMonitor.interval Interval at which metrics should be scraped
+    interval: 4m
+    ## @param metrics.serviceMonitor.scrapeTimeout Timeout after which the scrape is ended
+    scrapeTimeout: ""
+    ## @param metrics.serviceMonitor.relabelings Specify additional relabeling of metrics
+    relabelings: []
+    ## @param metrics.serviceMonitor.metricRelabelings Specify additional metric relabeling of metrics
+    metricRelabelings: []
+    ## @param metrics.serviceMonitor.honorLabels Honor metrics labels
+    honorLabels: false
+    ## @param metrics.serviceMonitor.selector Prometheus instance selector labels
+    selector: {}
+    ## @param metrics.serviceMonitor.annotations Additional custom annotations for the ServiceMonitor
+    annotations: {}
+    ## @param metrics.serviceMonitor.namespaceSelector Namespace selector for ServiceMonitor
+    namespaceSelector: {}
 
 ## @section Pod configuration
 podAnnotations: {}

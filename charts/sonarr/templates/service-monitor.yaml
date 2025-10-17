@@ -1,18 +1,47 @@
-{{- if .Values.metrics.enabled }}
+{{- if and .Values.metrics.enabled .Values.metrics.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "sonarr.fullname" . }}-exporter
+  name: {{ include "sonarr.fullname" . }}-metrics
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "sonarr-exporter.labels" . | nindent 4 }}
+    {{- include "sonarr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: metrics
+    {{- with .Values.metrics.serviceMonitor.selector }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.metrics.serviceMonitor.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+  jobLabel: {{ include "sonarr.fullname" . }}
   selector:
     matchLabels:
-      {{- include "sonarr-exporter.labels" . | nindent 8 }}
+      {{- include "sonarr.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: metrics
   endpoints:
     - port: metrics
-      interval: {{ .Values.metrics.service.interval | default "30s" }}
-      scrapeTimeout: {{ .Values.metrics.service.scrapeTimeout | default "30s" }}
+      {{- with .Values.metrics.serviceMonitor.interval }}
+      interval: {{ . }}
+      {{- end }}
+      {{- with .Values.metrics.serviceMonitor.scrapeTimeout }}
+      scrapeTimeout: {{ . }}
+      {{- end }}
       path: /metrics
+      {{- with .Values.metrics.serviceMonitor.honorLabels }}
+      honorLabels: {{ . }}
+      {{- end }}
+      {{- with .Values.metrics.serviceMonitor.relabelings }}
+      relabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.metrics.serviceMonitor.metricRelabelings }}
+      metricRelabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- with .Values.metrics.serviceMonitor.namespaceSelector }}
+  namespaceSelector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 {{- end }}

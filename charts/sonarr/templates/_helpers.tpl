@@ -29,14 +29,6 @@ Common labels
 {{- end }}
 
 {{/*
-Exporter Common labels
-*/}}
-{{- define "sonarr-exporter.labels" -}}
-app.kubernetes.io/name: {{ include "sonarr.fullname" . }}-exporter
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
 Selector labels
 */}}
 {{- define "sonarr.selectorLabels" -}}

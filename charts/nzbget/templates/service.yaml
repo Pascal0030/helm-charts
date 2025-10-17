@@ -30,21 +30,37 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "nzbget.fullname" . }}-exporter
+  name: {{ include "nzbget.fullname" . }}-metrics
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "nzbget-exporter.labels" . | nindent 4 }}
-  {{- $annotations := merge .Values.metrics.service.annotations .Values.commonAnnotations }}
-  {{- with $annotations }}
+    {{- include "nzbget.labels" . | nindent 4 }}
+    app.kubernetes.io/component: metrics
+  {{- with .Values.metrics.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  type: {{ .Values.metrics.service.type }}
+  {{- if and (eq .Values.metrics.service.type "LoadBalancer") .Values.metrics.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.metrics.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.metrics.service.type "LoadBalancer") .Values.metrics.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range .Values.metrics.service.loadBalancerSourceRanges }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
+  {{- if and (eq .Values.metrics.service.type "ClusterIP") .Values.metrics.service.clusterIP }}
+  clusterIP: {{ .Values.metrics.service.clusterIP }}
+  {{- end }}
   ports:
-    - port: {{ .Values.metrics.service.port }}
-      targetPort: metrics
+    - name: metrics
+      port: {{ .Values.metrics.service.port }}
       protocol: TCP
-      name: metrics
+      targetPort: metrics
+      {{- if and (or (eq .Values.metrics.service.type "NodePort") (eq .Values.metrics.service.type "LoadBalancer")) .Values.metrics.service.nodePort }}
+      nodePort: {{ .Values.metrics.service.nodePort }}
+      {{- end }}
   selector:
-    {{- include "nzbget-exporter.labels" . | nindent 4 }}
+    {{- include "nzbget.selectorLabels" . | nindent 4 }}
 {{- end }}

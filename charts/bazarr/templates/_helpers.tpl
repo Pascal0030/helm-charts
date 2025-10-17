@@ -29,14 +29,6 @@ Common labels
 {{- end }}
 
 {{/*
-Exporter Common labels
-*/}}
-{{- define "bazarr-exporter.labels" -}}
-app.kubernetes.io/name: {{ include "bazarr.fullname" . }}-exporter
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
 Selector labels
 */}}
 {{- define "bazarr.selectorLabels" -}}

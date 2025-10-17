@@ -139,6 +139,48 @@ spec:
               mountPath: {{ $nfsstorage.mountPath }}
             {{- end }}
             {{- end }}
+        {{- if .Values.metrics.enabled }}
+        - name: nzbget-exporter
+          image: {{ .Values.metrics.image.registry }}/{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}
+          imagePullPolicy: {{ .Values.metrics.image.imagePullPolicy }}
+          env:
+            - name: NZBGET_HOST
+              value: "http://localhost:{{ .Values.service.port | default 6789 }}"
+            {{- if .Values.auth.existingSecret }}
+            - name: NZBGET_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingSecret }}
+                  key: {{ .Values.auth.secretKeys.userNameKey }}
+            - name: NZBGET_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingSecret }}
+                  key: {{ .Values.auth.secretKeys.userPasswordKey }}
+            {{- else}}
+            - name: NZBGET_USERNAME
+              value: {{ .Values.auth.username | quote }}
+            - name: NZBGET_PASSWORD
+              value: {{ include "chrt-6456.password" . | quote }}
+            {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.metrics.containerPort | default 9707 }}
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            failureThreshold: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            failureThreshold: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.metrics.resources | nindent 12 }}
+        {{- end }}
       volumes:
         {{- if .Values.config.existingConfigMap }}
         - name: nzbget-temp-config
@@ -192,84 +234,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
----
-{{- if .Values.metrics.enabled }}
-kind: Deployment
-apiVersion: apps/v1
-metadata:
-  name: {{ include "nzbget.fullname" . }}-exporter
-  namespace: {{ .Release.Namespace }}
-  labels:
-    {{- include "nzbget-exporter.labels" . | nindent 4 }}
-  {{- with .Values.commonAnnotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-spec:
-  replicas: 1
-  revisionHistoryLimit: 1
-  selector:
-    matchLabels:
-      {{- include "nzbget-exporter.labels" . | nindent 6 }}
-  template:
-    metadata:
-      labels:
-        {{- include "nzbget-exporter.labels" . | nindent 8 }}
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "monitoring"
-    spec:
-      containers:
-        - name: nzbget-exporter
-          image: {{ .Values.metrics.image.registry }}/{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}
-          imagePullPolicy: {{ .Values.metrics.image.imagePullPolicy }}
-          env:
-            - name: NZBGET_HOST
-              value: "http://{{ include "nzbget.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port | default 6789 }}"
-            {{- if .Values.auth.existingSecret }}
-            - name: NZBGET_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.auth.existingSecret }}
-                  key: {{ .Values.auth.secretKeys.userNameKey }}
-            - name: NZBGET_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.auth.existingSecret }}
-                  key: {{ .Values.auth.secretKeys.userPasswordKey }}
-            {{- else}}
-            - name: NZBGET_USERNAME
-              value: {{ .Values.auth.username | quote }}
-            - name: NZBGET_PASSWORD
-              value: {{ include "chrt-6456.password" . | quote }}
-            {{- end }}
-          ports:
-            - name: metrics
-              containerPort: {{ .Values.metrics.containerPort | default 9707 }}
-          livenessProbe:
-            httpGet:
-              path: /metrics
-              port: metrics
-            failureThreshold: 5
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /metrics
-              port: metrics
-            failureThreshold: 5
-            periodSeconds: 10
-          resources:
-            {{- toYaml .Values.metrics.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-{{- end }}

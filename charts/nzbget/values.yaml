@@ -22,7 +22,7 @@ image:
   ## @param image.repository NZBGet image repository
   repository: linuxserver/nzbget
   ## @param image.tag NZBGet image tag (immutable tags are recommended)
-  tag: ""
+  tag: "latest"
   ## @param image.pullPolicy NZBGet image pull policy
   imagePullPolicy: Always
 
@@ -355,41 +355,68 @@ networkPolicy:
 metrics:
   ## @param metrics.enabled Enable the lidarr metrics exporter deployment
   enabled: false
+  ## @param metrics.image.registry Redis exporter image registry
+  ## @param metrics.image.repository Redis exporter image repository
+  ## @param metrics.image.tag Redis exporter image tag
+  ## @param metrics.image.pullPolicy Redis exporter image pull policy
   image:
     ## @param metrics.image Docker image for the lidarr metrics exporter
     registry: ghcr.io
     repository: frebib/nzbget-exporter
     tag: latest # https://github.com/frebib/nzbget-exporter/pkgs/container/nzbget-exporter
     imagePullPolicy: IfNotPresent
-  serviceMonitor:
-    ## @param metrics.service.enabled Create a ServiceMonitor for the lidarr metrics exporter
-    enabled: false
-    ## @param metrics.service.port Port the ServiceMonitor should scrape
-    interval: 4m
-    ## @param metrics.service.scrapeTimeout Scrape timeout for the ServiceMonitor
-    scrapeTimeout: 90s
-    ## @param metrics.service.labels Additional labels for the ServiceMonitor
-    labels: {}
-    ## @param metrics.service.metricRelabelings Metric relabelings for the ServiceMonitor
-    metricRelabelings: []
-    ## @param metrics.service.relabelings Relabelings for the ServiceMonitor
-    relabelings: []
-  service:
-    ## @param metrics.service.port Port the lidarr metrics exporter listens on
-    port: 9452
-    ## @param metrics.service.interval Scrape interval for the lidarr metrics exporter
-    annotations: {}
-  ## @param metrics.containerPort Port the lidarr metrics exporter container listens on
+  ## @param metrics.containerPort Port where the metrics exporter will listen on
   containerPort: 9452
-  resources: {}
-    ## @param metrics.resources.limits The resources limits for the lidarr metrics exporter container
-    ## limits:
-    ##   cpu: 500m
-    ##   memory: 256Mi
-    ## @param metrics.resources.requests The requested resources for the lidarr metrics exporter container
-    ## requests:
-    ##   memory: 64Mi
-    ##   cpu: 100m
+  ## @param metrics.resources Resource limits and requests for metrics container
+  resources:
+    limits:
+      memory: 64Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  ## @param metrics.extraArgs Extra arguments for redis exporter, for example:
+  ## extraArgs:
+  ##   - --...
+  ##   - --...
+  extraArgs: []
+  ## Metrics service configuration
+  service:
+    ## @param metrics.service.type Metrics service type
+    type: ClusterIP
+    ## @param metrics.service.port Metrics service port
+    port: 9452
+    ## @param metrics.service.annotations Additional custom annotations for Metrics service
+    annotations: {}
+    ## @param metrics.service.loadBalancerIP Load balancer IP if metrics service type is `LoadBalancer`
+    loadBalancerIP: ""
+    ## @param metrics.service.loadBalancerSourceRanges Addresses that are allowed when metrics service is LoadBalancer
+    loadBalancerSourceRanges: []
+    ## @param metrics.service.clusterIP Static clusterIP or None for headless services when metrics service type is ClusterIP
+    clusterIP: ""
+    ## @param metrics.service.nodePort Specify the nodePort value for the LoadBalancer and NodePort service types
+    nodePort: ""
+  ## Prometheus ServiceMonitor configuration
+  serviceMonitor:
+    ## @param metrics.serviceMonitor.enabled Create ServiceMonitor resource(s) for scraping metrics using PrometheusOperator
+    enabled: false
+    ## @param metrics.serviceMonitor.namespace Namespace in which to create ServiceMonitor resource(s)
+    namespace: ""
+    ## @param metrics.serviceMonitor.interval Interval at which metrics should be scraped
+    interval: 4m
+    ## @param metrics.serviceMonitor.scrapeTimeout Timeout after which the scrape is ended
+    scrapeTimeout: ""
+    ## @param metrics.serviceMonitor.relabelings Specify additional relabeling of metrics
+    relabelings: []
+    ## @param metrics.serviceMonitor.metricRelabelings Specify additional metric relabeling of metrics
+    metricRelabelings: []
+    ## @param metrics.serviceMonitor.honorLabels Honor metrics labels
+    honorLabels: false
+    ## @param metrics.serviceMonitor.selector Prometheus instance selector labels
+    selector: {}
+    ## @param metrics.serviceMonitor.annotations Additional custom annotations for the ServiceMonitor
+    annotations: {}
+    ## @param metrics.serviceMonitor.namespaceSelector Namespace selector for ServiceMonitor
+    namespaceSelector: {}
 
 ## @section Pod configuration
 podAnnotations: {}
