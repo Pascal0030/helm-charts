@@ -140,7 +140,7 @@ spec:
             {{- end }}
             {{- end }}
         {{- if .Values.metrics.enabled }}
-        - name: nzbget-exporter
+        - name: metrics
           image: {{ .Values.metrics.image.registry }}/{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}
           imagePullPolicy: {{ .Values.metrics.image.imagePullPolicy }}
           env:
@@ -171,13 +171,13 @@ spec:
               path: /metrics
               port: metrics
             failureThreshold: 5
-            periodSeconds: 10
+            periodSeconds: 60
           readinessProbe:
             httpGet:
               path: /metrics
               port: metrics
             failureThreshold: 5
-            periodSeconds: 10
+            periodSeconds: 60
           resources:
             {{- toYaml .Values.metrics.resources | nindent 12 }}
         {{- end }}
