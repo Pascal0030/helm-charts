@@ -21,6 +21,23 @@ entries:
   bazarr:
   - apiVersion: v2
     appVersion: 25.3.20250926
+    created: "2025-12-20T23:00:20.615311076Z"
+    dependencies:
+    - name: common
+      repository: https://pascal0030.github.io/helm-charts/
+      version: 1.x.x
+    description: bazarr is a TV series collection manager for Usenet and BitTorrent
+      users.
+    digest: bc93cc1d15ef1b86cb18c8c5df9ca36aa90eef2073770a92bd03085464595f41
+    name: bazarr
+    sources:
+    - https://hub.docker.com/r/linuxserver/bazarr
+    type: application
+    urls:
+    - bazarr-0.0.15.tgz
+    version: 0.0.15
+  - apiVersion: v2
+    appVersion: 25.3.20250926
     created: "2025-12-20T14:04:18.632303098Z"
     dependencies:
     - name: common
@@ -362,6 +379,22 @@ entries:
     urls:
     - nzbget-0.1.0.tgz
     version: 0.1.0
+  - apiVersion: v2
+    appVersion: 25.3.20250926
+    created: "2025-12-20T23:00:20.724486597Z"
+    dependencies:
+    - name: common
+      repository: https://pascal0030.github.io/helm-charts/
+      version: 1.x.x
+    description: NZBGet is a lightweight and efficient Usenet downloader
+    digest: be5522a109ce83f822040b59e7e87a50bb97a153137fdcb8d5a9254517791e39
+    name: nzbget
+    sources:
+    - https://hub.docker.com/r/linuxserver/nzbget
+    type: application
+    urls:
+    - nzbget-0.0.13.tgz
+    version: 0.0.13
   - apiVersion: v2
     appVersion: 25.3.20250926
     created: "2025-12-20T14:00:08.872603873Z"
@@ -945,4 +978,4 @@ entries:
     urls:
     - sonarr-0.0.1.tgz
     version: 0.0.1
-generated: "2025-12-20T14:04:18.632451054Z"
+generated: "2025-12-20T23:00:20.72473495Z"
