@@ -180,15 +180,34 @@ ingress:
   className: ""
   ## @param ingress.annotations Additional annotations for the Ingress resource
   annotations:
-    kubernetes.io/hostname: lidarr.local
+    kubernetes.io/hostname: lidarr.example.com
   ## @param ingress.hosts An array with hosts and paths
   hosts:
-    - host: lidarr.local
+    - host: lidarr.example.com
       paths:
         - path: /
           pathType: Prefix
   ## @param ingress.tls TLS configuration for the Ingress
   tls: []
+
+## @section Gateway API (HTTPRoute) parameters
+route:
+  main:
+    ## @param route.main.enabled Enable HTTPRoute resource generation via templates
+    ##   Set to `false` to skip creating an HTTPRoute for the chart.
+    enabled: false
+    ## @param route.main.hostnames List of hostnames the HTTPRoute should match
+    ##   Example: ['bazarr.example.com']
+    hostnames:
+      - lidarr.example.com
+    ## @param route.main.parentRefs List of Gateway parentRefs to attach the HTTPRoute to
+    ##   Multiple parentRefs allow attaching the route to several Gateways.
+    ##   Each entry may include `name`, `group`, `kind`, and `namespace`.
+    parentRefs:
+      # - name: cilium-gateway
+      #   group: gateway.networking.k8s.io
+      #   kind: Gateway
+      #   namespace: kube-system
 
 ## @section Network Policy configuration
 networkPolicy:

@@ -63,6 +63,9 @@ The following table lists the configurable parameters of the NZBGet chart and th
 | `nodeSelector`                    | Node selector                                       | `{}`                   |
 | `tolerations`                     | Tolerations                                         | `[]`                   |
 | `affinity`                        | Affinity                                            | `{}`                   |
+| `route.main.enabled`              | Enable Gateway API HTTPRoute creation via templates | `true`                 |
+| `route.main.hostnames`            | Hostnames the HTTPRoute should match                | See `values.yaml`      |
+| `route.main.parentRefs`           | Gateway parentRefs to attach the HTTPRoute to       | See `values.yaml`      |
 
 See `values.yaml` for a full list and detailed configuration.
 
@@ -102,6 +105,32 @@ ingress:
 ```
 
 ---
+
+## Gateway API (HTTPRoute) support
+
+The chart supports configuring a Kubernetes Gateway API HTTPRoute via the `route.main` values. Use this to attach an HTTPRoute to one or more Gateways.
+
+- `route.main.enabled`: enable HTTPRoute creation (default: true)
+- `route.main.hostnames`: list of hostnames the HTTPRoute should match.
+- `route.main.parentRefs`: list of Gateway parentRefs (each may include `name`, `group`, `kind`, and `namespace`). If `namespace` is omitted the release namespace is used.
+
+Example:
+
+```yaml
+route:
+  main:
+    enabled: true
+    hostnames:
+      - nzbget.my-domain.com
+    parentRefs:
+      - name: cilium-gateway
+        group: gateway.networking.k8s.io
+        kind: Gateway
+        namespace: kube-system
+```
+
+Ensure the Gateway API CRDs and a compatible Gateway controller (for example Cilium Gateway) are installed in your cluster.
+
 
 ## Links
 

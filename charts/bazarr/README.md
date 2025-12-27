@@ -67,6 +67,9 @@ The following table lists the configurable parameters of the bazarr chart and th
 | `nodeSelector`                    | Node selector                                       | `{}`                   |
 | `tolerations`                     | Tolerations                                         | `[]`                   |
 | `affinity`                        | Affinity                                            | `{}`                   |
+| `route.main.enabled`              | Enable Gateway API HTTPRoute creation via templates | `true`                 |
+| `route.main.hostnames`            | Hostnames the HTTPRoute should match                | See `values.yaml`      |
+| `route.main.parentRefs`           | Gateway parentRefs to attach the HTTPRoute to       | See `values.yaml`      |
 
 See `values.yaml` for a full list and detailed configuration.
 
