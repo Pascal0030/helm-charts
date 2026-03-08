@@ -48,6 +48,14 @@ spec:
           env:
             {{- toYaml .Values.env | nindent 12 }}
           {{- end }}
+            {{- if .Values.containerSecurityContext.runAsUser }}
+            - name: PUID
+              value: {{ .Values.containerSecurityContext.runAsUser | quote }}
+            {{- end }}
+            {{- if .Values.containerSecurityContext.runAsGroup }}
+            - name: PGID
+              value: {{ .Values.containerSecurityContext.runAsGroup | quote }}
+            {{- end }}
             - name: RADARR__LOG__LEVEL
               value: {{ .Values.config.logLevel | default "debug" | quote }}
             - name: RADARR__AUTH__METHOD

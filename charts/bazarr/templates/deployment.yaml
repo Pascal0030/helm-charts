@@ -81,6 +81,14 @@ spec:
           env:
             {{- toYaml .Values.env | nindent 12 }}
           {{- end }}
+            {{- if .Values.containerSecurityContext.runAsUser }}
+            - name: PUID
+              value: {{ .Values.containerSecurityContext.runAsUser | quote }}
+            {{- end }}
+            {{- if .Values.containerSecurityContext.runAsGroup }}
+            - name: PGID
+              value: {{ .Values.containerSecurityContext.runAsGroup | quote }}
+            {{- end }}
           ports:
             - name: bazarr-http
               containerPort: {{ .Values.service.port | default 6767 }}
