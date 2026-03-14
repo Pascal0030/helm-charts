@@ -182,6 +182,11 @@ spec:
             {{- toYaml .Values.metrics.resources | nindent 12 }}
         {{- end }}
       volumes:
+        {{- if .Values.persistence.enabled }}
+        - name: nzbgetconfigfolder
+          persistentVolumeClaim:
+            claimName: {{ include "nzbget.fullname" . }}-config
+        {{- end }}
         {{- if .Values.config.existingConfigMap }}
         - name: nzbget-temp-config
           configMap:

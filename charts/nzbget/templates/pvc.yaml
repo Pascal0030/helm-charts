@@ -6,7 +6,7 @@ This file is kept for reference and potential future use cases.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "nzbget.fullname" . }}
+  name: {{ include "nzbget.fullname" . }}-config
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "nzbget.labels" . | nindent 4 }}
