@@ -2,7 +2,7 @@
 PVC template is now handled by volumeClaimTemplates in StatefulSet.
 This file is kept for reference and potential future use cases.
 */}}
-{{- if false }}
+{{- if .Values.persistence.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
